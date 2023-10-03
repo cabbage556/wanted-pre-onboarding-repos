@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 회사 모델
+model Company {
+  id Int @id @default(autoincrement())
+
+  name String
+  nationality String
+  region String
+
+  posts Post[]
+}
+
+// 채용공고 모델
+model Post {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title String
+  content String
+
+  position String
+  rewards Int @default(0)
+  stack String
+
+  companyId Int
+  company Company @relation(fields: [companyId], references: [id])
+}
+
+// 사용자 모델
+model User {
+  id Int @id @default(autoincrement())
+
+  name String
+  phone String
+  email String @unique
+}
+
+// 지원내역 모델
+model History {
+  id Int @id @default(autoincrement())
+}
