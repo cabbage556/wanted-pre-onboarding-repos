@@ -10,42 +10,50 @@ datasource db {
 // 회사 모델
 model Company {
   id Int @id @default(autoincrement())
+  name String @db.VarChar(30)
+  nationality String @db.VarChar(30) 
+  region String @db.VarChar(30)
 
-  name String
-  nationality String
-  region String
-
-  posts Post[]
+  jobPostings JobPosting[] // one-to-many(Company - JobPosting)
 }
 
 // 채용공고 모델
-model Post {
+model JobPosting {
   id Int @id @default(autoincrement())
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  title String
+  title String @db.VarChar(100)
   content String
-
-  position String
+  position String @db.VarChar(30)
+  stack String? @db.VarChar(100)
   rewards Int @default(0)
-  stack String
 
   companyId Int
   company Company @relation(fields: [companyId], references: [id])
+
+  applications Application[] // one-to-many(JobPosting - Application)
 }
 
 // 사용자 모델
 model User {
   id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  phone String @db.Char(11)
+  email String @unique @db.VarChar(100)
 
-  name String
-  phone String
-  email String @unique
+  applications Application[] // one-to-many(User - Application)
 }
 
 // 지원내역 모델
-model History {
+model Application {
   id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  
+  jobPostingId Int
+  jobPosting JobPosting @relation(fields: [jobPostingId], references: [id])
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([jobPostingId, userId]) // 1회 지원 가능
 }
