@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateJobPostingDto } from './dto';
+import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class JobPostingService {
@@ -7,7 +9,19 @@ export class JobPostingService {
     private prismaService: PrismaService, //
   ) {}
 
-  createJobPosting() {}
+  async createJobPosting(dto: CreateJobPostingDto) {
+    try {
+      const jobPosting = await this.prismaService.jobPosting.create({
+        data: {
+          ...dto,
+        },
+      });
+      return jobPosting;
+    } catch (error) {
+      if (error instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException();
+    }
+  }
 
   getJobPostings() {}
 

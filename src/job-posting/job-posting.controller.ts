@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -7,8 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { JobPostingService } from './job-posting.service';
+import { CreateJobPostingDto } from './dto';
 
 @Controller('posts')
 export class JobPostingController {
@@ -17,8 +20,10 @@ export class JobPostingController {
   ) {}
 
   @Post()
-  createJobPosting() {
-    return 'POST /posts createJobPosting';
+  createJobPosting(
+    @Body(new ValidationPipe()) dto: CreateJobPostingDto, //
+  ) {
+    return this.jobPostingService.createJobPosting(dto);
   }
 
   @Get('list')
