@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JobPostingService } from './job-posting.service';
-import { CreateJobPostingDto } from './dto';
+import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
 
 @Controller('posts')
 export class JobPostingController {
@@ -49,8 +49,9 @@ export class JobPostingController {
   @Patch(':id')
   updateJobPosting(
     @Param('id', ParseIntPipe) id: number, //
+    @Body(new ValidationPipe()) dto: UpdateJobPostingDto, //
   ) {
-    return `PATCH /posts/${id} updateJobPosting`;
+    return this.jobPostingService.updateJobPosting(id, dto);
   }
 
   @Delete(':id')

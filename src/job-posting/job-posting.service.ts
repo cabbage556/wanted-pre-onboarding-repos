@@ -1,6 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateJobPostingDto } from './dto';
+import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
 import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -29,7 +33,28 @@ export class JobPostingService {
 
   getDetailPage() {}
 
-  updateJobPosting() {}
+  async updateJobPosting(id: number, dto: UpdateJobPostingDto) {
+    try {
+      const jobPosting = await this.prismaService.jobPosting.findUnique({
+        where: {
+          id,
+        },
+      });
+      if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+      return this.prismaService.jobPosting.update({
+        where: {
+          id,
+        },
+        data: {
+          ...dto,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException();
+    }
+  }
 
   deleteJobPosting() {}
 }
