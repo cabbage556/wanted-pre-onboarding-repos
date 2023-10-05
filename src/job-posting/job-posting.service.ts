@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
 import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
+import { JobPosting } from '@prisma/client';
 
 @Injectable()
 export class JobPostingService {
@@ -33,27 +34,25 @@ export class JobPostingService {
 
   getDetailPage() {}
 
-  async updateJobPosting(id: number, dto: UpdateJobPostingDto) {
-    try {
-      const jobPosting = await this.prismaService.jobPosting.findUnique({
-        where: {
-          id,
-        },
-      });
-      if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+  async updateJobPosting(
+    id: number,
+    dto: UpdateJobPostingDto,
+  ): Promise<JobPosting> {
+    const jobPosting = await this.prismaService.jobPosting.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
-      return this.prismaService.jobPosting.update({
-        where: {
-          id,
-        },
-        data: {
-          ...dto,
-        },
-      });
-    } catch (error) {
-      if (error instanceof PrismaClientInitializationError)
-        throw new InternalServerErrorException();
-    }
+    return this.prismaService.jobPosting.update({
+      where: {
+        id,
+      },
+      data: {
+        ...dto,
+      },
+    });
   }
 
   async deleteJobPosting(id: number): Promise<void> {

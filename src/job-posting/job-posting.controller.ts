@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { JobPostingService } from './job-posting.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
+import { JobPosting } from '@prisma/client';
 
 @Controller('posts')
 export class JobPostingController {
@@ -50,7 +51,7 @@ export class JobPostingController {
   updateJobPosting(
     @Param('id', ParseIntPipe) id: number, //
     @Body(new ValidationPipe()) dto: UpdateJobPostingDto, //
-  ) {
+  ): Promise<JobPosting> {
     return this.jobPostingService.updateJobPosting(id, dto);
   }
 
