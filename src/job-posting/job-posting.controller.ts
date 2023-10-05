@@ -57,7 +57,7 @@ export class JobPostingController {
   @Delete(':id')
   deleteJobPosting(
     @Param('id', ParseIntPipe) id: number, //
-  ) {
-    return `DELETE /posts/${id} deleteJobPosting`;
+  ): Promise<void> {
+    return this.jobPostingService.deleteJobPosting(id);
   }
 }

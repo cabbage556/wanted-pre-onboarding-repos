@@ -56,5 +56,18 @@ export class JobPostingService {
     }
   }
 
-  deleteJobPosting() {}
+  async deleteJobPosting(id: number): Promise<void> {
+    const jobPosting = await this.prismaService.jobPosting.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+    await this.prismaService.jobPosting.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
