@@ -4,7 +4,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
+import {
+  CreateJobPostingDto,
+  SearchJobPostingsDto,
+  UpdateJobPostingDto,
+} from './dto';
 import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { JobPosting } from '@prisma/client';
 
@@ -37,7 +41,7 @@ export class JobPostingService {
     return jobPostings;
   }
 
-  searchInCompany(search: string): Promise<JobPosting[]> {
+  private searchInCompany(search: string): Promise<JobPosting[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         company: {
@@ -49,7 +53,7 @@ export class JobPostingService {
     });
   }
 
-  searchInPosition(search: string): Promise<JobPosting[]> {
+  private searchInPosition(search: string): Promise<JobPosting[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         position: {
@@ -59,14 +63,21 @@ export class JobPostingService {
     });
   }
 
-  async searchJobPostings(
-    search: string,
-    field: string,
-  ): Promise<JobPosting[]> {
-    let jobPostings = [];
-    if (field === 'company') jobPostings = await this.searchInCompany(search);
-    else if (field === 'position')
-      jobPostings = await this.searchInPosition(search);
+  async searchJobPostings({
+    search,
+    field,
+  }: SearchJobPostingsDto): Promise<JobPosting[]> {
+    let jobPostings = null;
+    switch (field) {
+      case 'company':
+        jobPostings = await this.searchInCompany(search);
+        break;
+      case 'position':
+        jobPostings = await this.searchInPosition(search);
+        break;
+      default:
+        jobPostings = [];
+    }
 
     return jobPostings;
   }

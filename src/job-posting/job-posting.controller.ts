@@ -10,7 +10,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { JobPostingService } from './job-posting.service';
-import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
+import {
+  CreateJobPostingDto,
+  SearchJobPostingsDto,
+  UpdateJobPostingDto,
+} from './dto';
 import { JobPosting } from '@prisma/client';
 
 @Controller('posts')
@@ -35,10 +39,9 @@ export class JobPostingController {
 
   @Get()
   searchJobPostings(
-    @Query('search') search: string,
-    @Query('field') field: string,
+    @Query() dto: SearchJobPostingsDto, //
   ): Promise<JobPosting[]> {
-    return this.jobPostingService.searchJobPostings(search, field);
+    return this.jobPostingService.searchJobPostings(dto);
   }
 
   @Get(':id')
