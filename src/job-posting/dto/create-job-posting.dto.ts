@@ -1,6 +1,6 @@
 import {
+  IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -8,7 +8,7 @@ import {
 
 export class CreateJobPostingDto {
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
   companyId: number;
 
   @IsNotEmpty()
@@ -17,7 +17,7 @@ export class CreateJobPostingDto {
   position: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   rewards?: number;
 
   @IsNotEmpty()

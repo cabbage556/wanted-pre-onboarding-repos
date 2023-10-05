@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateJobPostingDto {
   @IsOptional()
@@ -7,7 +7,7 @@ export class UpdateJobPostingDto {
   position?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   rewards?: number;
 
   @IsOptional()

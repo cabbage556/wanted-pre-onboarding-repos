@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  ValidationPipe,
 } from '@nestjs/common';
 import { JobPostingService } from './job-posting.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto';
@@ -22,7 +21,7 @@ export class JobPostingController {
 
   @Post()
   createJobPosting(
-    @Body(new ValidationPipe()) dto: CreateJobPostingDto, //
+    @Body() dto: CreateJobPostingDto, //
   ): Promise<JobPosting> {
     return this.jobPostingService.createJobPosting(dto);
   }
@@ -52,7 +51,7 @@ export class JobPostingController {
   @Patch(':id')
   updateJobPosting(
     @Param('id', ParseIntPipe) id: number, //
-    @Body(new ValidationPipe()) dto: UpdateJobPostingDto, //
+    @Body() dto: UpdateJobPostingDto, //
   ): Promise<JobPosting> {
     return this.jobPostingService.updateJobPosting(id, dto);
   }
