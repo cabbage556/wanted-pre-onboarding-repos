@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -30,7 +31,39 @@ export class JobPostingService {
 
   getJobPostings() {}
 
-  searchJobPostings() {}
+  searchInCompany(search: string): Promise<JobPosting[]> {
+    return this.prismaService.jobPosting.findMany({
+      where: {
+        company: {
+          name: {
+            search,
+          },
+        },
+      },
+    });
+  }
+
+  searchInPosition(search: string): Promise<JobPosting[]> {
+    return this.prismaService.jobPosting.findMany({
+      where: {
+        position: {
+          search,
+        },
+      },
+    });
+  }
+
+  async searchJobPostings(
+    search: string,
+    field: string,
+  ): Promise<JobPosting[]> {
+    let jobPostings = [];
+    if (field === 'company') jobPostings = await this.searchInCompany(search);
+    else if (field === 'position')
+      jobPostings = await this.searchInPosition(search);
+
+    return jobPostings;
+  }
 
   async getDetailPage(id: number): Promise<JobPosting> {
     const jobPosting = await this.prismaService.jobPosting.findUnique({

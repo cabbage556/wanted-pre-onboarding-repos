@@ -36,8 +36,8 @@ export class JobPostingController {
   searchJobPostings(
     @Query('search') search: string,
     @Query('field') field: string,
-  ) {
-    return `GET /posts?search=${search}&field=${field}`;
+  ): Promise<JobPosting[]> {
+    return this.jobPostingService.searchJobPostings(search, field);
   }
 
   @Get(':id')
