@@ -34,15 +34,15 @@ export class JobPostingService {
 
   getDetailPage() {}
 
+  getJobPostingById(id: number): Promise<JobPosting> {
+    return this.prismaService.jobPosting.findUnique({ where: { id } });
+  }
+
   async updateJobPosting(
     id: number,
     dto: UpdateJobPostingDto,
   ): Promise<JobPosting> {
-    const jobPosting = await this.prismaService.jobPosting.findUnique({
-      where: {
-        id,
-      },
-    });
+    const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
     return this.prismaService.jobPosting.update({
@@ -56,11 +56,7 @@ export class JobPostingService {
   }
 
   async deleteJobPosting(id: number): Promise<void> {
-    const jobPosting = await this.prismaService.jobPosting.findUnique({
-      where: {
-        id,
-      },
-    });
+    const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
     await this.prismaService.jobPosting.delete({
