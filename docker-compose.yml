@@ -9,15 +9,3 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: nest
-  recruitment-service:
-    build:
-      context: .
-      dockerfile: DockerFile
-    container_name: recruiment-service
-    volumes:
-      - ./src:/wanted-pre-onboarding/src
-    restart: always
-    ports:
-      - 3000:3000
-    env_file:
-      - ./.env
