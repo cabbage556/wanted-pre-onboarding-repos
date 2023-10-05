@@ -13,7 +13,6 @@ export class ApplicationController {
   createApplication(
     @Body() dto: CreateApplicationDto, //
   ): Promise<Application> {
-    console.log(dto);
     return this.applicationService.createApplication(dto);
   }
 }
