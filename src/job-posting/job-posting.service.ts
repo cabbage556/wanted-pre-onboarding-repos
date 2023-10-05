@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -29,7 +28,14 @@ export class JobPostingService {
     }
   }
 
-  getJobPostings() {}
+  async getJobPostings(page: number): Promise<JobPosting[]> {
+    const take = 10;
+    const jobPostings = await this.prismaService.jobPosting.findMany({
+      take,
+      skip: (page - 1) * take,
+    });
+    return jobPostings;
+  }
 
   searchInCompany(search: string): Promise<JobPosting[]> {
     return this.prismaService.jobPosting.findMany({

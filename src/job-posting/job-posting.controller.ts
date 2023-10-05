@@ -28,8 +28,10 @@ export class JobPostingController {
   }
 
   @Get('list')
-  getJobPostings() {
-    return `GET /posts/list`;
+  getJobPostings(
+    @Query('page', ParseIntPipe) page = 1, //
+  ): Promise<JobPosting[]> {
+    return this.jobPostingService.getJobPostings(page);
   }
 
   @Get()
@@ -43,7 +45,7 @@ export class JobPostingController {
   @Get(':id')
   getDetailPage(
     @Param('id', ParseIntPipe) id: number, //
-  ) {
+  ): Promise<JobPosting> {
     return this.jobPostingService.getDetailPage(id);
   }
 
