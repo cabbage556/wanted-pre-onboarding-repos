@@ -23,7 +23,7 @@ export class JobPostingController {
   @Post()
   createJobPosting(
     @Body(new ValidationPipe()) dto: CreateJobPostingDto, //
-  ) {
+  ): Promise<JobPosting> {
     return this.jobPostingService.createJobPosting(dto);
   }
 

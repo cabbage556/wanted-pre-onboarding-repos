@@ -14,7 +14,7 @@ export class JobPostingService {
     private prismaService: PrismaService, //
   ) {}
 
-  async createJobPosting(dto: CreateJobPostingDto) {
+  async createJobPosting(dto: CreateJobPostingDto): Promise<JobPosting> {
     try {
       const jobPosting = await this.prismaService.jobPosting.create({
         data: {
