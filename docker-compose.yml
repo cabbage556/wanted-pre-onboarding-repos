@@ -1,9 +1,19 @@
 version: '3.8'
 services:
+  dev-db:
+    image: postgres:13
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: nest
   recruitment-service:
     build:
       context: .
       dockerfile: DockerFile
+    container_name: recruiment-service
     volumes:
       - ./src:/wanted-pre-onboarding/src
     restart: always
@@ -11,11 +21,3 @@ services:
       - 3000:3000
     env_file:
       - ./.env
-  dev-db:
-    image: postgres:13
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: nest
