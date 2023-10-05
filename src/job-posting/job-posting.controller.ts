@@ -44,7 +44,7 @@ export class JobPostingController {
   getDetailPage(
     @Param('id', ParseIntPipe) id: number, //
   ) {
-    return `GET /posts/${id} getDetailPage`;
+    return this.jobPostingService.getDetailPage(id);
   }
 
   @Patch(':id')

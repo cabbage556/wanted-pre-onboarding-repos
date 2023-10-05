@@ -32,7 +32,25 @@ export class JobPostingService {
 
   searchJobPostings() {}
 
-  getDetailPage() {}
+  async getDetailPage(id: number): Promise<JobPosting> {
+    const jobPosting = await this.prismaService.jobPosting.findUnique({
+      where: { id },
+      include: {
+        company: {
+          include: {
+            jobPostings: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+    return jobPosting;
+  }
 
   getJobPostingById(id: number): Promise<JobPosting> {
     return this.prismaService.jobPosting.findUnique({ where: { id } });
