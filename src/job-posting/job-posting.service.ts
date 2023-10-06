@@ -6,6 +6,9 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateJobPostingDto,
+  GetJobPostingsDto,
+  PageDto,
+  PageMetaDto,
   SearchJobPostingsDto,
   UpdateJobPostingDto,
 } from './dto';
@@ -34,15 +37,22 @@ export class JobPostingService {
     }
   }
 
-  async getJobPostings(
-    page: number, //
-  ): Promise<JobPosting[]> {
-    const take = 10;
+  async getJobPostings({
+    page,
+    take,
+  }: GetJobPostingsDto): Promise<PageDto<JobPosting>> {
+    const totalCounts = await this.prismaService.jobPosting.count();
+    const pageMetaDto = new PageMetaDto({ totalCounts, page, take });
     const jobPostings = await this.prismaService.jobPosting.findMany({
-      take,
-      skip: (page - 1) * take,
+      take: pageMetaDto.take,
+      skip: (pageMetaDto.page - 1) * pageMetaDto.take,
     });
-    return jobPostings;
+
+    if (pageMetaDto.lastPage >= pageMetaDto.page) {
+      return new PageDto<JobPosting>(jobPostings, pageMetaDto);
+    } else {
+      throw new ForbiddenException('리소스 접근 거부');
+    }
   }
 
   private searchInCompany(

@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -12,6 +11,8 @@ import {
 import { JobPostingService } from './job-posting.service';
 import {
   CreateJobPostingDto,
+  GetJobPostingsDto,
+  PageDto,
   SearchJobPostingsDto,
   UpdateJobPostingDto,
 } from './dto';
@@ -33,9 +34,9 @@ export class JobPostingController {
 
   @Get('list')
   getJobPostings(
-    @Query('page', ParseIntPipe) page = 1, //
-  ): Promise<JobPosting[]> {
-    return this.jobPostingService.getJobPostings(page);
+    @Query() dto: GetJobPostingsDto, //
+  ): Promise<PageDto<JobPosting>> {
+    return this.jobPostingService.getJobPostings(dto);
   }
 
   @Get()
