@@ -16,6 +16,7 @@ import {
   UpdateJobPostingDto,
 } from './dto';
 import { JobPosting } from '@prisma/client';
+import { IdValidationPipe } from '../pipes';
 
 @Controller('posts')
 export class JobPostingController {
@@ -46,23 +47,22 @@ export class JobPostingController {
 
   @Get(':id')
   getDetailPage(
-    @Param('id', ParseIntPipe) id: number, //
+    @Param('id', IdValidationPipe) id: number, //
   ): Promise<JobPosting> {
     return this.jobPostingService.getDetailPage(id);
   }
 
   @Patch(':id')
   updateJobPosting(
-    @Param('id', ParseIntPipe) id: number, //
+    @Param('id', IdValidationPipe) id: number, //
     @Body() dto: UpdateJobPostingDto, //
   ): Promise<JobPosting> {
-    console.log(dto);
     return this.jobPostingService.updateJobPosting(id, dto);
   }
 
   @Delete(':id')
   deleteJobPosting(
-    @Param('id', ParseIntPipe) id: number, //
+    @Param('id', IdValidationPipe) id: number, //
   ): Promise<void> {
     return this.jobPostingService.deleteJobPosting(id);
   }
