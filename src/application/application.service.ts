@@ -10,7 +10,9 @@ export class ApplicationService {
     private prismaService: PrismaService, //
   ) {}
 
-  async createApplication(dto: CreateApplicationDto): Promise<Application> {
+  async createApplication(
+    dto: CreateApplicationDto, //
+  ): Promise<Application> {
     try {
       const application = await this.prismaService.application.create({
         data: {

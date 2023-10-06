@@ -18,7 +18,9 @@ export class JobPostingService {
     private prismaService: PrismaService, //
   ) {}
 
-  async createJobPosting(dto: CreateJobPostingDto): Promise<JobPosting> {
+  async createJobPosting(
+    dto: CreateJobPostingDto, //
+  ): Promise<JobPosting> {
     try {
       const jobPosting = await this.prismaService.jobPosting.create({
         data: {
@@ -32,7 +34,9 @@ export class JobPostingService {
     }
   }
 
-  async getJobPostings(page: number): Promise<JobPosting[]> {
+  async getJobPostings(
+    page: number, //
+  ): Promise<JobPosting[]> {
     const take = 10;
     const jobPostings = await this.prismaService.jobPosting.findMany({
       take,
@@ -41,7 +45,9 @@ export class JobPostingService {
     return jobPostings;
   }
 
-  private searchInCompany(search: string): Promise<JobPosting[]> {
+  private searchInCompany(
+    search: string, //
+  ): Promise<JobPosting[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         company: {
@@ -53,7 +59,9 @@ export class JobPostingService {
     });
   }
 
-  private searchInPosition(search: string): Promise<JobPosting[]> {
+  private searchInPosition(
+    search: string, //
+  ): Promise<JobPosting[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         position: {
@@ -82,7 +90,9 @@ export class JobPostingService {
     return jobPostings;
   }
 
-  async getDetailPage(id: number): Promise<JobPosting> {
+  async getDetailPage(
+    id: number, //
+  ): Promise<JobPosting> {
     const jobPosting = await this.prismaService.jobPosting.findUnique({
       where: { id },
       include: {
@@ -102,12 +112,14 @@ export class JobPostingService {
     return jobPosting;
   }
 
-  getJobPostingById(id: number): Promise<JobPosting> {
+  getJobPostingById(
+    id: number, //
+  ): Promise<JobPosting> {
     return this.prismaService.jobPosting.findUnique({ where: { id } });
   }
 
   async updateJobPosting(
-    id: number,
+    id: number, //
     dto: UpdateJobPostingDto,
   ): Promise<JobPosting> {
     const jobPosting = await this.getJobPostingById(id);
@@ -123,7 +135,9 @@ export class JobPostingService {
     });
   }
 
-  async deleteJobPosting(id: number): Promise<void> {
+  async deleteJobPosting(
+    id: number, //
+  ): Promise<void> {
     const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
