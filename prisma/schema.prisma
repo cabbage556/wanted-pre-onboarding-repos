@@ -51,7 +51,7 @@ model Application {
   createdAt DateTime @default(now())
 
   jobPostingId Int
-  jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id])
+  jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade) // 채용공고 삭제 - 지원내역 삭제
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
