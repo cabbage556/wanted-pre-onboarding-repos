@@ -1,21 +1,6 @@
-import { IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { CreateJobPostingDto } from './create-job-posting.dto';
 
-export class UpdateJobPostingDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  position?: string;
-
-  @IsOptional()
-  @IsInt()
-  rewards?: number;
-
-  @IsOptional()
-  @IsString()
-  content?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  stack?: string;
-}
+export class UpdateJobPostingDto extends PartialType(
+  OmitType(CreateJobPostingDto, ['companyId'] as const),
+) {}

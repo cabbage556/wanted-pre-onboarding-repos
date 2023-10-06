@@ -56,6 +56,7 @@ export class JobPostingController {
     @Param('id', ParseIntPipe) id: number, //
     @Body() dto: UpdateJobPostingDto, //
   ): Promise<JobPosting> {
+    console.log(dto);
     return this.jobPostingService.updateJobPosting(id, dto);
   }
 
