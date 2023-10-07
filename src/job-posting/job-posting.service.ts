@@ -62,7 +62,7 @@ export class JobPostingService {
       where: {
         company: {
           name: {
-            search,
+            contains: search,
           },
         },
       },
@@ -75,7 +75,7 @@ export class JobPostingService {
     return this.prismaService.jobPosting.findMany({
       where: {
         position: {
-          search,
+          contains: search,
         },
       },
     });
