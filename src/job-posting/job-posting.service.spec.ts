@@ -184,4 +184,124 @@ describe('JobPostingService', () => {
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
+
+  describe('searchJobPostings', () => {
+    it(`Company 테이블의 name 칼럼에서 '원티드'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      jest //
+        .spyOn(prismaService.jobPosting, 'findMany')
+        .mockResolvedValueOnce(
+          [...jobPostingArray].filter((jobPosting) => {
+            const company = companyArray.find(
+              (company) => company.id === jobPosting.companyId,
+            );
+            return company.name.includes('원티드');
+          }),
+        );
+
+      expect(
+        service.searchJobPostings({
+          search: '원티드',
+          field: 'company',
+        }),
+      ).resolves.toEqual([
+        {
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId,
+        },
+        {
+          id: 2,
+          createdAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+          content: '채용 중입니다 2',
+          position: 'Express 백엔드 개발자',
+          stack: '#Express #Node.js',
+          rewards: 200000,
+          companyId,
+        },
+        {
+          id: 3,
+          createdAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+          content: '채용 중입니다 3',
+          position: 'Node.js 백엔드 개발자',
+          stack: '#Node.js',
+          rewards: 300000,
+          companyId,
+        },
+      ]);
+    });
+    it(`Company 테이블의 name 칼럼에서 '에이스'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      jest //
+        .spyOn(prismaService.jobPosting, 'findMany')
+        .mockResolvedValueOnce(
+          [...jobPostingArray].filter((jobPosting) => {
+            const company = companyArray.find(
+              (company) => company.id === jobPosting.companyId,
+            );
+            return company.name.includes('에이스');
+          }),
+        );
+
+      expect(
+        service.searchJobPostings({
+          search: '에이스',
+          field: 'company',
+        }),
+      ).resolves.toEqual([
+        {
+          id: 4,
+          createdAt: new Date(2023, 9, 7, 16, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 16, 50, 30, 333),
+          content: '채용 중입니다 4',
+          position: 'Spring 백엔드 개발자',
+          stack: '#Spring',
+          rewards: 400000,
+          companyId: 2,
+        },
+        {
+          id: 5,
+          createdAt: new Date(2023, 9, 7, 17, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 17, 50, 30, 333),
+          content: '채용 중입니다 5',
+          position: 'Django 백엔드 개발자',
+          stack: '#Django',
+          rewards: 500000,
+          companyId: 2,
+        },
+      ]);
+    });
+    it(`JobPosting 테이블의 position 칼럼에서 'Nest'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      jest
+        .spyOn(prismaService.jobPosting, 'findMany')
+        .mockResolvedValueOnce(
+          [...jobPostingArray].filter((jobPosting) =>
+            jobPosting.position.includes('Nest'),
+          ),
+        );
+
+      expect(
+        service.searchJobPostings({
+          search: 'Nest',
+          field: 'position',
+        }),
+      ).resolves.toEqual([
+        {
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+        },
+      ]);
+    });
+  });
 });
