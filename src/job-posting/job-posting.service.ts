@@ -14,6 +14,10 @@ import {
 } from './dto';
 import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { JobPosting } from '@prisma/client';
+import {
+  JobPostingWithCompanyAndJobPostingsId,
+  includeCompanyAndSelectJobPostingsId,
+} from './infer-types';
 
 @Injectable()
 export class JobPostingService {
@@ -102,20 +106,10 @@ export class JobPostingService {
 
   async getDetailPage(
     id: number, //
-  ): Promise<JobPosting> {
+  ): Promise<JobPostingWithCompanyAndJobPostingsId> {
     const jobPosting = await this.prismaService.jobPosting.findUnique({
       where: { id },
-      include: {
-        company: {
-          include: {
-            jobPostings: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        },
-      },
+      include: includeCompanyAndSelectJobPostingsId,
     });
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
