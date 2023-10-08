@@ -25,7 +25,7 @@ const companyArray = [
     region: '서울',
   },
 ];
-const companyId = 1;
+
 const jobPostingArray = [
   {
     id: 1,
@@ -35,7 +35,7 @@ const jobPostingArray = [
     position: 'NestJS 백엔드 개발자',
     stack: '#NestJS #Node.js',
     rewards: 100000,
-    companyId,
+    companyId: 1,
   },
   {
     id: 2,
@@ -45,7 +45,7 @@ const jobPostingArray = [
     position: 'Express 백엔드 개발자',
     stack: '#Express #Node.js',
     rewards: 200000,
-    companyId,
+    companyId: 1,
   },
   {
     id: 3,
@@ -55,7 +55,7 @@ const jobPostingArray = [
     position: 'Node.js 백엔드 개발자',
     stack: '#Node.js',
     rewards: 300000,
-    companyId,
+    companyId: 1,
   },
   {
     id: 4,
@@ -92,9 +92,9 @@ describe('JobPostingService', () => {
           provide: PrismaService,
           useValue: {
             jobPosting: {
-              create: jest.fn().mockResolvedValue(oneJobPosting),
+              create: jest.fn(),
               count: jest.fn().mockReturnValue(jobPostingArray.length),
-              findMany: jest.fn().mockResolvedValue(jobPostingArray),
+              findMany: jest.fn(),
               findUnique: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
@@ -117,56 +117,84 @@ describe('JobPostingService', () => {
   });
 
   describe('createJobPosting', () => {
-    it('채용공고를 성공적으로 삽입해야 함', () => {
-      expect(
-        service.createJobPosting({
-          content: '채용 중입니다 1',
-          position: 'NestJS 백엔드 개발자',
-          stack: '#NestJS #Node.js',
-          rewards: 100000,
-          companyId,
-        }),
-      ).resolves.toEqual(oneJobPosting);
-    });
+    const dto = {
+      content: '채용 중입니다 1',
+      position: 'NestJS 백엔드 개발자',
+      stack: '#NestJS #Node.js',
+      rewards: 100000,
+      companyId: 1,
+    };
 
-    it('InternalServerErrorException 예외를 던져야 함', async () => {
+    it('채용공고 레코드를 생성하고 리턴해야 함', () => {
       jest
         .spyOn(prismaService.jobPosting, 'create')
-        .mockImplementationOnce(() => {
-          throw new PrismaClientInitializationError(
-            'db connection is bad',
-            '5.3.1',
-          );
-        });
-      try {
-        await service.createJobPosting({
-          content: '채용 중입니다 1',
-          position: 'NestJS 백엔드 개발자',
-          stack: '#NestJS #Node.js',
-          rewards: 100000,
-          companyId,
-        });
-      } catch (error) {
-        expect(error).toBeInstanceOf(InternalServerErrorException);
-      }
+        .mockResolvedValueOnce(oneJobPosting);
+
+      expect(
+        service.createJobPosting(dto), //
+      ).resolves.toEqual({
+        id: 1,
+        createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        content: '채용 중입니다 1',
+        position: 'NestJS 백엔드 개발자',
+        stack: '#NestJS #Node.js',
+        rewards: 100000,
+        companyId: 1,
+      });
+    });
+
+    it('DB 연결에 문제가 있으면 InternalServerErrorException 예외를 던져야 함', () => {
+      jest
+        .spyOn(prismaService.jobPosting, 'create')
+        .mockRejectedValueOnce(
+          new PrismaClientInitializationError('db connection is bad', '5.3.1'),
+        );
+
+      expect(
+        service.createJobPosting(dto), //
+      ).rejects.toThrowError(new InternalServerErrorException());
     });
   });
 
   describe('getJobPostings', () => {
-    it('page: 1, take:2이면 채용공고 목록 2개와 페이지 메타데이터를 리턴해야 함', async () => {
+    it('page: 1, take: 2이면 채용공고 목록 2개와 페이지 메타데이터를 리턴해야 함', () => {
       const [page, take] = [1, 2];
+
       jest
         .spyOn(prismaService.jobPosting, 'findMany')
         .mockResolvedValueOnce(
           [...jobPostingArray].slice((page - 1) * take, take),
         );
+
       expect(
         service.getJobPostings({
           page,
           take,
         }),
       ).resolves.toEqual({
-        data: [...jobPostingArray].slice((page - 1) * take, take),
+        data: [
+          {
+            id: 1,
+            createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+            updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+            content: '채용 중입니다 1',
+            position: 'NestJS 백엔드 개발자',
+            stack: '#NestJS #Node.js',
+            rewards: 100000,
+            companyId: 1,
+          },
+          {
+            id: 2,
+            createdAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+            updatedAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+            content: '채용 중입니다 2',
+            position: 'Express 백엔드 개발자',
+            stack: '#Express #Node.js',
+            rewards: 200000,
+            companyId: 1,
+          },
+        ],
         meta: {
           page: 1,
           take: 2,
@@ -180,10 +208,12 @@ describe('JobPostingService', () => {
     });
 
     it('마지막 페이지보다 전달한 page가 더 크면 ForbiddenException 예외를 던져야 함', () => {
+      const [page, take] = [5, 2];
+
       expect(
         service.getJobPostings({
-          page: 5,
-          take: 2,
+          page,
+          take,
         }),
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
@@ -191,6 +221,8 @@ describe('JobPostingService', () => {
 
   describe('searchJobPostings', () => {
     it(`Company 테이블의 name 칼럼에서 '원티드'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      const [search, field] = ['원티드', 'company'];
+
       jest //
         .spyOn(prismaService.jobPosting, 'findMany')
         .mockResolvedValueOnce(
@@ -198,14 +230,14 @@ describe('JobPostingService', () => {
             const company = companyArray.find(
               (company) => company.id === jobPosting.companyId,
             );
-            return company.name.includes('원티드');
+            return company.name.includes(search);
           }),
         );
 
       expect(
         service.searchJobPostings({
-          search: '원티드',
-          field: 'company',
+          search,
+          field,
         }),
       ).resolves.toEqual([
         {
@@ -216,7 +248,7 @@ describe('JobPostingService', () => {
           position: 'NestJS 백엔드 개발자',
           stack: '#NestJS #Node.js',
           rewards: 100000,
-          companyId,
+          companyId: 1,
         },
         {
           id: 2,
@@ -226,7 +258,7 @@ describe('JobPostingService', () => {
           position: 'Express 백엔드 개발자',
           stack: '#Express #Node.js',
           rewards: 200000,
-          companyId,
+          companyId: 1,
         },
         {
           id: 3,
@@ -236,11 +268,14 @@ describe('JobPostingService', () => {
           position: 'Node.js 백엔드 개발자',
           stack: '#Node.js',
           rewards: 300000,
-          companyId,
+          companyId: 1,
         },
       ]);
     });
+
     it(`Company 테이블의 name 칼럼에서 '에이스'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      const [search, field] = ['에이스', 'company'];
+
       jest //
         .spyOn(prismaService.jobPosting, 'findMany')
         .mockResolvedValueOnce(
@@ -248,14 +283,14 @@ describe('JobPostingService', () => {
             const company = companyArray.find(
               (company) => company.id === jobPosting.companyId,
             );
-            return company.name.includes('에이스');
+            return company.name.includes(search);
           }),
         );
 
       expect(
         service.searchJobPostings({
-          search: '에이스',
-          field: 'company',
+          search,
+          field,
         }),
       ).resolves.toEqual([
         {
@@ -280,19 +315,22 @@ describe('JobPostingService', () => {
         },
       ]);
     });
+
     it(`JobPosting 테이블의 position 칼럼에서 'Nest'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
+      const [search, field] = ['Nest', 'position'];
+
       jest
         .spyOn(prismaService.jobPosting, 'findMany')
         .mockResolvedValueOnce(
           [...jobPostingArray].filter((jobPosting) =>
-            jobPosting.position.includes('Nest'),
+            jobPosting.position.includes(search),
           ),
         );
 
       expect(
         service.searchJobPostings({
-          search: 'Nest',
-          field: 'position',
+          search,
+          field,
         }),
       ).resolves.toEqual([
         {
@@ -312,6 +350,7 @@ describe('JobPostingService', () => {
   describe('getDetailPage', () => {
     it(`id '1'에 해당하는 채용공고와 해당 회사가 올린 다른 채용공고의 id를 리턴해야 함`, () => {
       const id = 1;
+
       jest //
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce({
@@ -334,7 +373,10 @@ describe('JobPostingService', () => {
             ],
           },
         } as JobPostingWithCompanyAndJobPostingsId);
-      expect(service.getDetailPage(id)).resolves.toEqual({
+
+      expect(
+        service.getDetailPage(id), //
+      ).resolves.toEqual({
         id: 1,
         createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
         updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
@@ -361,6 +403,7 @@ describe('JobPostingService', () => {
           ],
         },
       });
+
       expect(prismaService.jobPosting.findUnique).toHaveBeenCalledWith({
         where: {
           id,
@@ -371,13 +414,14 @@ describe('JobPostingService', () => {
 
     it('id에 해당하는 채용공고가 없으면 ForbiddenException 예외를 던져야 함', () => {
       const id = 100;
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(null);
 
-      expect(service.getDetailPage(id)).rejects.toThrowError(
-        new ForbiddenException('리소스 접근 거부'),
-      );
+      expect(
+        service.getDetailPage(id), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
 
@@ -388,6 +432,7 @@ describe('JobPostingService', () => {
         content: '원티드랩에서 NestJS 백엔드 개발자를 채용 중입니다.',
         position: '[신입] NestJS 백엔드 개발자',
       };
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(oneJobPosting);
@@ -409,7 +454,7 @@ describe('JobPostingService', () => {
         position: '[신입] NestJS 백엔드 개발자',
         stack: '#NestJS #Node.js',
         rewards: 100000,
-        companyId,
+        companyId: 1,
       });
     });
 
@@ -418,6 +463,7 @@ describe('JobPostingService', () => {
       const dto = {
         rewards: 50000,
       };
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(null);
@@ -431,6 +477,7 @@ describe('JobPostingService', () => {
   describe('deleteJobPosting', () => {
     it('{ delete: true }를 리턴해야 함', () => {
       const id = 1;
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(oneJobPosting);
@@ -445,6 +492,7 @@ describe('JobPostingService', () => {
 
     it(`{ deleted: false, message: '삭제 실패'}를 리턴해야 함`, () => {
       const id = 1;
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(oneJobPosting);
@@ -459,6 +507,7 @@ describe('JobPostingService', () => {
 
     it('id에 해당하는 채용공고를 찾지 못하면 ForbiddenException 예외를 던져야 함', () => {
       const id = 100;
+
       jest
         .spyOn(prismaService.jobPosting, 'findUnique')
         .mockResolvedValueOnce(null);
