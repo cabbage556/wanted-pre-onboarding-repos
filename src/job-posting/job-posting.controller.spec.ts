@@ -187,4 +187,124 @@ describe('JobPostingController', () => {
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
+
+  describe('searchJobPostings', () => {
+    it(`회사 이름에서 '원티드'를 검색해 해당하는 채용공고를 리턴해야 함`, async () => {
+      const dto = {
+        search: '원티드',
+        field: 'company',
+      };
+
+      jest //
+        .spyOn(jobPostingService, 'searchJobPostings')
+        .mockResolvedValueOnce([
+          {
+            id: 1,
+            createdAt: new Date(2023, 9, 9, 12, 54, 30, 333),
+            updatedAt: new Date(2023, 9, 9, 12, 54, 30, 333),
+            content: '채용 중입니다 1',
+            position: 'NestJS 백엔드 개발자',
+            stack: '#NestJS #Node.js',
+            rewards: 100000,
+            companyId: 1,
+          },
+          {
+            id: 2,
+            createdAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+            updatedAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+            content: '채용 중입니다 2',
+            position: 'Express 백엔드 개발자',
+            stack: '#Express #Node.js',
+            rewards: 200000,
+            companyId: 1,
+          },
+          {
+            id: 3,
+            createdAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+            updatedAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+            content: '채용 중입니다 3',
+            position: 'Node.js 백엔드 개발자',
+            stack: '#Node.js',
+            rewards: 300000,
+            companyId: 1,
+          },
+        ]);
+
+      expect(
+        jobPostingController.searchJobPostings(dto), //
+      ).resolves.toEqual([
+        {
+          id: 1,
+          createdAt: new Date(2023, 9, 9, 12, 54, 30, 333),
+          updatedAt: new Date(2023, 9, 9, 12, 54, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+        },
+        {
+          id: 2,
+          createdAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 14, 50, 30, 333),
+          content: '채용 중입니다 2',
+          position: 'Express 백엔드 개발자',
+          stack: '#Express #Node.js',
+          rewards: 200000,
+          companyId: 1,
+        },
+        {
+          id: 3,
+          createdAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 15, 50, 30, 333),
+          content: '채용 중입니다 3',
+          position: 'Node.js 백엔드 개발자',
+          stack: '#Node.js',
+          rewards: 300000,
+          companyId: 1,
+        },
+      ]);
+    });
+
+    it(`포지션에서 'Nest'를 검색해 해당하는 채용공고를 리턴해야 함`, async () => {
+      const dto = {
+        search: 'Nest',
+        field: 'position',
+      };
+
+      jest.spyOn(jobPostingService, 'searchJobPostings').mockResolvedValueOnce([
+        {
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+        },
+      ]);
+
+      const jobPostings = await jobPostingController.searchJobPostings(dto);
+
+      expect(
+        jobPostings[0].position, //
+      ).toMatch(dto.search);
+
+      expect(
+        jobPostings, //
+      ).toEqual([
+        {
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+        },
+      ]);
+    });
+  });
 });
