@@ -21,8 +21,6 @@ describe('JobPostingController', () => {
           useValue: {
             createJobPosting: jest.fn(),
             getJobPostings: jest.fn(),
-            searchInCompany: jest.fn(),
-            searchInPostion: jest.fn(),
             searchJobPostings: jest.fn(),
             getDetailPage: jest.fn(),
             getJobPostingById: jest.fn(),
@@ -305,6 +303,84 @@ describe('JobPostingController', () => {
           companyId: 1,
         },
       ]);
+    });
+  });
+
+  describe('getDetailPage', () => {
+    it('채용공고를 리턴해야 함', () => {
+      const id = 1;
+
+      jest //
+        .spyOn(jobPostingService, 'getDetailPage')
+        .mockResolvedValueOnce({
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          content: '채용 중입니다 1',
+          position: 'NestJS 백엔드 개발자',
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드랩',
+            nationality: '대한민국',
+            region: '서울',
+            jobPostings: [
+              {
+                id: 1,
+              },
+              {
+                id: 2,
+              },
+              {
+                id: 3,
+              },
+            ],
+          },
+        });
+
+      expect(
+        jobPostingController.getDetailPage(id), //
+      ).resolves.toEqual({
+        id: 1,
+        createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        content: '채용 중입니다 1',
+        position: 'NestJS 백엔드 개발자',
+        stack: '#NestJS #Node.js',
+        rewards: 100000,
+        companyId: 1,
+        company: {
+          id: 1,
+          name: '원티드랩',
+          nationality: '대한민국',
+          region: '서울',
+          jobPostings: [
+            {
+              id: 1,
+            },
+            {
+              id: 2,
+            },
+            {
+              id: 3,
+            },
+          ],
+        },
+      });
+    });
+
+    it('ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+
+      jest
+        .spyOn(jobPostingService, 'getDetailPage')
+        .mockRejectedValueOnce(new ForbiddenException('리소스 접근 거부'));
+
+      expect(
+        jobPostingController.getDetailPage(id), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
 });
