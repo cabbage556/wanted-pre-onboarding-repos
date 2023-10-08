@@ -427,4 +427,45 @@ describe('JobPostingService', () => {
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
+
+  describe('deleteJobPosting', () => {
+    it('{ delete: true }를 리턴해야 함', () => {
+      const id = 1;
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(oneJobPosting);
+      jest
+        .spyOn(prismaService.jobPosting, 'delete')
+        .mockResolvedValueOnce(oneJobPosting);
+
+      expect(
+        service.deleteJobPosting(id), //
+      ).resolves.toEqual({ deleted: true });
+    });
+
+    it(`{ deleted: false, message: '삭제 실패'}를 리턴해야 함`, () => {
+      const id = 1;
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(oneJobPosting);
+      jest
+        .spyOn(prismaService.jobPosting, 'delete')
+        .mockRejectedValueOnce(new Error('delete fail'));
+
+      expect(
+        service.deleteJobPosting(id), //
+      ).resolves.toEqual({ deleted: false, message: '삭제 실패' });
+    });
+
+    it('id에 해당하는 채용공고를 찾지 못하면 ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(null);
+
+      expect(
+        service.deleteJobPosting(id), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
+  });
 });
