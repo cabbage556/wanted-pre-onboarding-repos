@@ -141,14 +141,19 @@ export class JobPostingService {
 
   async deleteJobPosting(
     id: number, //
-  ): Promise<void> {
+  ): Promise<{ deleted: boolean; message?: string }> {
     const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
-    await this.prismaService.jobPosting.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      await this.prismaService.jobPosting.delete({
+        where: {
+          id,
+        },
+      });
+      return { deleted: true };
+    } catch (_) {
+      return { deleted: false, message: '삭제 실패' };
+    }
   }
 }
