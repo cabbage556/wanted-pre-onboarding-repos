@@ -64,7 +64,7 @@ export class JobPostingController {
   @Delete(':id')
   deleteJobPosting(
     @Param('id', IdValidationPipe) id: number, //
-  ): Promise<void> {
+  ): Promise<{ deleted: boolean; message?: string }> {
     return this.jobPostingService.deleteJobPosting(id);
   }
 }
