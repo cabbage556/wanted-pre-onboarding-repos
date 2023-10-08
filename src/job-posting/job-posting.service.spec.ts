@@ -380,4 +380,51 @@ describe('JobPostingService', () => {
       );
     });
   });
+
+  describe('updateJobPosting', () => {
+    it('id에 해당하는 채용공고를 dto로 업데이트하고 리턴해야 함', () => {
+      const id = 1;
+      const dto = {
+        content: '원티드랩에서 NestJS 백엔드 개발자를 채용 중입니다.',
+        position: '[신입] NestJS 백엔드 개발자',
+      };
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(oneJobPosting);
+      jest //
+        .spyOn(prismaService.jobPosting, 'update')
+        .mockResolvedValueOnce({
+          ...oneJobPosting,
+          ...dto,
+          updatedAt: new Date(2023, 9, 9, 13, 50, 30, 333),
+        });
+
+      expect(
+        service.updateJobPosting(id, dto), //
+      ).resolves.toEqual({
+        id: 1,
+        createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        updatedAt: new Date(2023, 9, 9, 13, 50, 30, 333),
+        content: '원티드랩에서 NestJS 백엔드 개발자를 채용 중입니다.',
+        position: '[신입] NestJS 백엔드 개발자',
+        stack: '#NestJS #Node.js',
+        rewards: 100000,
+        companyId,
+      });
+    });
+
+    it('id에 해당하는 채용공고가 없다면 ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+      const dto = {
+        rewards: 50000,
+      };
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(null);
+
+      expect(
+        service.updateJobPosting(id, dto), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
+  });
 });
