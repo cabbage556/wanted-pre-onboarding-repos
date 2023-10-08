@@ -6,6 +6,10 @@ import {
   ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import {
+  JobPostingWithCompanyAndJobPostingsId,
+  includeCompanyAndSelectJobPostingsId,
+} from './infer-types';
 
 const companyArray = [
   {
@@ -302,6 +306,78 @@ describe('JobPostingService', () => {
           companyId: 1,
         },
       ]);
+    });
+  });
+
+  describe('getDetailPage', () => {
+    it(`id '1'에 해당하는 채용공고와 해당 회사가 올린 다른 채용공고의 id를 리턴해야 함`, () => {
+      const id = 1;
+      jest //
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce({
+          ...oneJobPosting,
+          company: {
+            id: 1,
+            name: '원티드랩',
+            nationality: '대한민국',
+            region: '서울',
+            jobPostings: [
+              {
+                id: 1,
+              },
+              {
+                id: 2,
+              },
+              {
+                id: 3,
+              },
+            ],
+          },
+        } as JobPostingWithCompanyAndJobPostingsId);
+      expect(service.getDetailPage(id)).resolves.toEqual({
+        id: 1,
+        createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        content: '채용 중입니다 1',
+        position: 'NestJS 백엔드 개발자',
+        stack: '#NestJS #Node.js',
+        rewards: 100000,
+        companyId: 1,
+        company: {
+          id: 1,
+          name: '원티드랩',
+          nationality: '대한민국',
+          region: '서울',
+          jobPostings: [
+            {
+              id: 1,
+            },
+            {
+              id: 2,
+            },
+            {
+              id: 3,
+            },
+          ],
+        },
+      });
+      expect(prismaService.jobPosting.findUnique).toHaveBeenCalledWith({
+        where: {
+          id,
+        },
+        include: includeCompanyAndSelectJobPostingsId,
+      });
+    });
+
+    it('id에 해당하는 채용공고가 없으면 ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+      jest
+        .spyOn(prismaService.jobPosting, 'findUnique')
+        .mockResolvedValueOnce(null);
+
+      expect(service.getDetailPage(id)).rejects.toThrowError(
+        new ForbiddenException('리소스 접근 거부'),
+      );
     });
   });
 });
