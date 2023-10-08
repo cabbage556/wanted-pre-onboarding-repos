@@ -433,4 +433,39 @@ describe('JobPostingController', () => {
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
+
+  describe('deleteJobPosting', () => {
+    const id = 1;
+    it('{ deleted: true }를 리턴해야 함', () => {
+      jest
+        .spyOn(jobPostingService, 'deleteJobPosting')
+        .mockResolvedValueOnce({ deleted: true });
+
+      expect(
+        jobPostingController.deleteJobPosting(id), //
+      ).resolves.toEqual({ deleted: true });
+    });
+
+    it(`{ deleted: false, message: '삭제 실패'}를 리턴해야 함`, () => {
+      jest
+        .spyOn(jobPostingService, 'deleteJobPosting')
+        .mockResolvedValueOnce({ deleted: false, message: '삭제 실패' });
+
+      expect(
+        jobPostingController.deleteJobPosting(id), //
+      ).resolves.toEqual({ deleted: false, message: '삭제 실패' });
+    });
+
+    it('ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+
+      jest
+        .spyOn(jobPostingService, 'deleteJobPosting')
+        .mockRejectedValueOnce(new ForbiddenException('리소스 접근 거부'));
+
+      expect(
+        jobPostingController.deleteJobPosting(id), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
+  });
 });
