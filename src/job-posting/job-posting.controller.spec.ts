@@ -383,4 +383,54 @@ describe('JobPostingController', () => {
       ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
+
+  describe('updateJobPosting', () => {
+    it('업데이트된 채용공고를 리턴해야 함', () => {
+      const id = 1;
+      const dto = {
+        content: '원티드랩에서 NestJS 백엔드 개발자를 채용 중입니다.',
+        position: '[신입] NestJS 백엔드 개발자',
+      };
+
+      jest //
+        .spyOn(jobPostingService, 'updateJobPosting')
+        .mockResolvedValueOnce({
+          id: 1,
+          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+          updatedAt: new Date(2023, 9, 9, 13, 50, 30, 333),
+          stack: '#NestJS #Node.js',
+          rewards: 100000,
+          companyId: 1,
+          ...dto,
+        });
+
+      expect(
+        jobPostingController.updateJobPosting(id, dto), //
+      ).resolves.toEqual({
+        id: 1,
+        createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+        updatedAt: new Date(2023, 9, 9, 13, 50, 30, 333),
+        content: '원티드랩에서 NestJS 백엔드 개발자를 채용 중입니다.',
+        position: '[신입] NestJS 백엔드 개발자',
+        stack: '#NestJS #Node.js',
+        rewards: 100000,
+        companyId: 1,
+      });
+    });
+
+    it('ForbiddenException 예외를 던져야 함', () => {
+      const id = 100;
+      const dto = {
+        rewards: 100000,
+      };
+
+      jest
+        .spyOn(jobPostingService, 'updateJobPosting')
+        .mockRejectedValueOnce(new ForbiddenException('리소스 접근 거부'));
+
+      expect(
+        jobPostingController.updateJobPosting(id, dto), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
+  });
 });
