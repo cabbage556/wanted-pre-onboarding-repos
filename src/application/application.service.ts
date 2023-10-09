@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateApplicationDto } from './dto';
 import { Application } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
