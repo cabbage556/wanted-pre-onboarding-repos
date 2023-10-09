@@ -24,6 +24,8 @@ export class ApplicationService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002')
           throw new ForbiddenException('이미 지원하였음');
+        else if (error.code === 'P2003')
+          throw new ForbiddenException('리소스 접근 거부');
       }
     }
   }
