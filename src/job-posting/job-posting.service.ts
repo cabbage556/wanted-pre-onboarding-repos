@@ -64,7 +64,7 @@ export class JobPostingService {
 
   private searchInCompany(
     search: string, //
-  ): Promise<JobPosting[]> {
+  ): Promise<JobPostingWithCompany[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         company: {
@@ -73,17 +73,25 @@ export class JobPostingService {
           },
         },
       },
+      include: includeCompany,
+      orderBy: {
+        createdAt: 'asc',
+      },
     });
   }
 
   private searchInPosition(
     search: string, //
-  ): Promise<JobPosting[]> {
+  ): Promise<JobPostingWithCompany[]> {
     return this.prismaService.jobPosting.findMany({
       where: {
         position: {
           contains: search,
         },
+      },
+      include: includeCompany,
+      orderBy: {
+        createdAt: 'asc',
       },
     });
   }
@@ -91,7 +99,7 @@ export class JobPostingService {
   async searchJobPostings({
     search,
     field,
-  }: SearchJobPostingsDto): Promise<JobPosting[]> {
+  }: SearchJobPostingsDto): Promise<JobPostingWithCompany[]> {
     let jobPostings = null;
     switch (field) {
       case 'company':
