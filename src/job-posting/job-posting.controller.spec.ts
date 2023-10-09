@@ -6,7 +6,7 @@ import {
   ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { JobPosting } from '@prisma/client';
+import { JobPostingWithCompany } from './infer-types';
 
 describe('JobPostingController', () => {
   let jobPostingController: JobPostingController;
@@ -98,7 +98,7 @@ describe('JobPostingController', () => {
       jest //
         .spyOn(jobPostingService, 'getJobPostings')
         .mockResolvedValueOnce(
-          new PageDto<JobPosting>(
+          new PageDto<JobPostingWithCompany>(
             [
               {
                 id: 1,
@@ -109,6 +109,12 @@ describe('JobPostingController', () => {
                 stack: '#NestJS #Node.js',
                 rewards: 100000,
                 companyId: 1,
+                company: {
+                  id: 1,
+                  name: '원티드',
+                  nationality: '대한민국',
+                  region: '서울',
+                },
               },
               {
                 id: 2,
@@ -119,6 +125,12 @@ describe('JobPostingController', () => {
                 stack: '#Express #Node.js',
                 rewards: 200000,
                 companyId: 1,
+                company: {
+                  id: 1,
+                  name: '원티드',
+                  nationality: '대한민국',
+                  region: '서울',
+                },
               },
             ],
             {
@@ -146,6 +158,12 @@ describe('JobPostingController', () => {
             stack: '#NestJS #Node.js',
             rewards: 100000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
           {
             id: 2,
@@ -156,6 +174,12 @@ describe('JobPostingController', () => {
             stack: '#Express #Node.js',
             rewards: 200000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
         ],
         meta: {
