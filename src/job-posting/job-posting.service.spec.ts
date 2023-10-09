@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import {
+  JobPostingWithCompany,
   JobPostingWithCompanyAndJobPostingsId,
   includeCompanyAndSelectJobPostingsId,
 } from './infer-types';
@@ -161,11 +162,22 @@ describe('JobPostingService', () => {
     it('page: 1, take: 2이면 채용공고 목록 2개와 페이지 메타데이터를 리턴해야 함', () => {
       const [page, take] = [1, 2];
 
-      jest
+      jest //
         .spyOn(prismaService.jobPosting, 'findMany')
-        .mockResolvedValueOnce(
-          [...jobPostingArray].slice((page - 1) * take, take),
-        );
+        .mockResolvedValueOnce([
+          {
+            ...jobPostingArray[0],
+            company: {
+              ...companyArray[0],
+            },
+          } as JobPostingWithCompany,
+          {
+            ...jobPostingArray[1],
+            company: {
+              ...companyArray[0],
+            },
+          } as JobPostingWithCompany,
+        ]);
 
       expect(
         service.getJobPostings({
@@ -183,6 +195,12 @@ describe('JobPostingService', () => {
             stack: '#NestJS #Node.js',
             rewards: 100000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
           {
             id: 2,
@@ -193,6 +211,12 @@ describe('JobPostingService', () => {
             stack: '#Express #Node.js',
             rewards: 200000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
         ],
         meta: {
