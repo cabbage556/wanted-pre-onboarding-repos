@@ -74,5 +74,20 @@ describe('ApplicationService', () => {
         service.createApplication(dto), //
       ).rejects.toThrowError(new ForbiddenException('이미 지원하였음'));
     });
+
+    it('외래키 제약조건 실패 시 ForbiddenException 예외를 던져야 함', () => {
+      jest
+        .spyOn(prismaService.application, 'create')
+        .mockRejectedValueOnce(
+          new PrismaClientKnownRequestError(
+            'Foreign key constraint failed on the field: {userId or jobPostingId}',
+            { code: 'P2003', clientVersion: '5.3.1' },
+          ),
+        );
+
+      expect(
+        service.createApplication(dto), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
   });
 });
