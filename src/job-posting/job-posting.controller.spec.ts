@@ -36,11 +36,11 @@ describe('JobPostingController', () => {
     jobPostingService = module.get<JobPostingService>(JobPostingService);
   });
 
-  it('controller should be defined', () => {
+  it('should be defined', () => {
     expect(jobPostingController).toBeDefined();
   });
 
-  it('service should be defined', () => {
+  it('should be defined', () => {
     expect(jobPostingService).toBeDefined();
   });
 
@@ -229,6 +229,12 @@ describe('JobPostingController', () => {
             stack: '#NestJS #Node.js',
             rewards: 100000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
           {
             id: 2,
@@ -239,6 +245,12 @@ describe('JobPostingController', () => {
             stack: '#Express #Node.js',
             rewards: 200000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
           {
             id: 3,
@@ -249,6 +261,12 @@ describe('JobPostingController', () => {
             stack: '#Node.js',
             rewards: 300000,
             companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
           },
         ]);
 
@@ -264,6 +282,12 @@ describe('JobPostingController', () => {
           stack: '#NestJS #Node.js',
           rewards: 100000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
         {
           id: 2,
@@ -274,6 +298,12 @@ describe('JobPostingController', () => {
           stack: '#Express #Node.js',
           rewards: 200000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
         {
           id: 3,
@@ -284,6 +314,12 @@ describe('JobPostingController', () => {
           stack: '#Node.js',
           rewards: 300000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
       ]);
     });
@@ -294,18 +330,26 @@ describe('JobPostingController', () => {
         field: 'position',
       };
 
-      jest.spyOn(jobPostingService, 'searchJobPostings').mockResolvedValueOnce([
-        {
-          id: 1,
-          createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
-          updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
-          content: '채용 중입니다 1',
-          position: 'NestJS 백엔드 개발자',
-          stack: '#NestJS #Node.js',
-          rewards: 100000,
-          companyId: 1,
-        },
-      ]);
+      jest //
+        .spyOn(jobPostingService, 'searchJobPostings')
+        .mockResolvedValueOnce([
+          {
+            id: 1,
+            createdAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+            updatedAt: new Date(2023, 9, 7, 13, 50, 30, 333),
+            content: '채용 중입니다 1',
+            position: 'NestJS 백엔드 개발자',
+            stack: '#NestJS #Node.js',
+            rewards: 100000,
+            companyId: 1,
+            company: {
+              id: 1,
+              name: '원티드',
+              nationality: '대한민국',
+              region: '서울',
+            },
+          },
+        ]);
 
       const jobPostings = await jobPostingController.searchJobPostings(dto);
 
@@ -325,6 +369,12 @@ describe('JobPostingController', () => {
           stack: '#NestJS #Node.js',
           rewards: 100000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
       ]);
     });
