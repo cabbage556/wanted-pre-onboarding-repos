@@ -15,7 +15,9 @@ import {
 import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { JobPosting } from '@prisma/client';
 import {
+  JobPostingWithCompany,
   JobPostingWithCompanyAndJobPostingsId,
+  includeCompany,
   includeCompanyAndSelectJobPostingsId,
 } from './infer-types';
 
@@ -44,16 +46,17 @@ export class JobPostingService {
   async getJobPostings({
     page,
     take,
-  }: GetJobPostingsDto): Promise<PageDto<JobPosting>> {
+  }: GetJobPostingsDto): Promise<PageDto<JobPostingWithCompany>> {
     const totalCounts = await this.prismaService.jobPosting.count();
     const pageMetaDto = new PageMetaDto({ totalCounts, page, take });
     const jobPostings = await this.prismaService.jobPosting.findMany({
       take: pageMetaDto.take,
       skip: (pageMetaDto.page - 1) * pageMetaDto.take,
+      include: includeCompany,
     });
 
     if (pageMetaDto.lastPage >= pageMetaDto.page) {
-      return new PageDto<JobPosting>(jobPostings, pageMetaDto);
+      return new PageDto<JobPostingWithCompany>(jobPostings, pageMetaDto);
     } else {
       throw new ForbiddenException('리소스 접근 거부');
     }

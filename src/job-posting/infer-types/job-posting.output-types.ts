@@ -17,3 +17,11 @@ export type JobPostingWithCompanyAndJobPostingsId =
   Prisma.JobPostingGetPayload<{
     include: typeof includeCompanyAndSelectJobPostingsId;
   }>;
+
+export const includeCompany = {
+  company: true,
+} satisfies Prisma.JobPostingInclude;
+
+export type JobPostingWithCompany = Prisma.JobPostingGetPayload<{
+  include: typeof includeCompany;
+}>;
