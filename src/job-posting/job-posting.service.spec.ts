@@ -249,14 +249,26 @@ describe('JobPostingService', () => {
 
       jest //
         .spyOn(prismaService.jobPosting, 'findMany')
-        .mockResolvedValueOnce(
-          [...jobPostingArray].filter((jobPosting) => {
-            const company = companyArray.find(
-              (company) => company.id === jobPosting.companyId,
-            );
-            return company.name.includes(search);
-          }),
-        );
+        .mockResolvedValueOnce([
+          {
+            ...jobPostingArray[0],
+            company: {
+              ...companyArray[0],
+            },
+          } as JobPostingWithCompany,
+          {
+            ...jobPostingArray[1],
+            company: {
+              ...companyArray[0],
+            },
+          } as JobPostingWithCompany,
+          {
+            ...jobPostingArray[2],
+            company: {
+              ...companyArray[0],
+            },
+          } as JobPostingWithCompany,
+        ]);
 
       expect(
         service.searchJobPostings({
@@ -273,6 +285,12 @@ describe('JobPostingService', () => {
           stack: '#NestJS #Node.js',
           rewards: 100000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
         {
           id: 2,
@@ -283,6 +301,12 @@ describe('JobPostingService', () => {
           stack: '#Express #Node.js',
           rewards: 200000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
         {
           id: 3,
@@ -293,6 +317,12 @@ describe('JobPostingService', () => {
           stack: '#Node.js',
           rewards: 300000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
       ]);
     });
@@ -302,14 +332,20 @@ describe('JobPostingService', () => {
 
       jest //
         .spyOn(prismaService.jobPosting, 'findMany')
-        .mockResolvedValueOnce(
-          [...jobPostingArray].filter((jobPosting) => {
-            const company = companyArray.find(
-              (company) => company.id === jobPosting.companyId,
-            );
-            return company.name.includes(search);
-          }),
-        );
+        .mockResolvedValueOnce([
+          {
+            ...jobPostingArray[3],
+            company: {
+              ...companyArray[1],
+            },
+          } as JobPostingWithCompany,
+          {
+            ...jobPostingArray[4],
+            company: {
+              ...companyArray[1],
+            },
+          } as JobPostingWithCompany,
+        ]);
 
       expect(
         service.searchJobPostings({
@@ -326,6 +362,12 @@ describe('JobPostingService', () => {
           stack: '#Spring',
           rewards: 400000,
           companyId: 2,
+          company: {
+            id: 2,
+            name: '에이스랩',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
         {
           id: 5,
@@ -336,6 +378,12 @@ describe('JobPostingService', () => {
           stack: '#Django',
           rewards: 500000,
           companyId: 2,
+          company: {
+            id: 2,
+            name: '에이스랩',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
       ]);
     });
@@ -343,13 +391,14 @@ describe('JobPostingService', () => {
     it(`JobPosting 테이블의 position 칼럼에서 'Nest'를 검색해 해당하는 채용공고를 리턴해야 함`, () => {
       const [search, field] = ['Nest', 'position'];
 
-      jest
-        .spyOn(prismaService.jobPosting, 'findMany')
-        .mockResolvedValueOnce(
-          [...jobPostingArray].filter((jobPosting) =>
-            jobPosting.position.includes(search),
-          ),
-        );
+      jest.spyOn(prismaService.jobPosting, 'findMany').mockResolvedValueOnce([
+        {
+          ...jobPostingArray[0],
+          company: {
+            ...companyArray[0],
+          },
+        } as JobPostingWithCompany,
+      ]);
 
       expect(
         service.searchJobPostings({
@@ -366,6 +415,12 @@ describe('JobPostingService', () => {
           stack: '#NestJS #Node.js',
           rewards: 100000,
           companyId: 1,
+          company: {
+            id: 1,
+            name: '원티드',
+            nationality: '대한민국',
+            region: '서울',
+          },
         },
       ]);
     });
