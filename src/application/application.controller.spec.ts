@@ -66,5 +66,15 @@ describe('ApplicationController', () => {
         controller.createApplication(dto), //
       ).rejects.toThrowError(new ForbiddenException('이미 지원하였음'));
     });
+
+    it('ForbiddenException 예외를 던져야 함', () => {
+      jest
+        .spyOn(service, 'createApplication')
+        .mockRejectedValueOnce(new ForbiddenException('리소스 접근 거부'));
+
+      expect(
+        controller.createApplication(dto), //
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
+    });
   });
 });
