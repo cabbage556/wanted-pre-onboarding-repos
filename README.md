@@ -221,11 +221,11 @@ model Application {
   }
   ```
 
-  - `companyId(필수)`: 정수값
+  - `companyId(필수)`: 정수값, 1 이상
   - `position(필수)`: 문자열, 100자 이하
   - `content(필수)`: 문자열
   - `stack(선택)`: 문자열, 100자 이하, 전달하지 않으면 null 저장
-  - `rewards(선택)`: 정수값, 전달하지 않으면 0 저장
+  - `rewards(선택)`: 정수값, 0 이상, 전달하지 않으면 0 저장
 
 - 응답
 
@@ -279,7 +279,7 @@ model Application {
   - `position(선택)`: 문자열, 100자 이하
   - `content(선택)`: 문자열
   - `stack(선택)`: 문자열, 100자 이하
-  - `rewards(선택)`: 정수값
+  - `rewards(선택)`: 정수값, 0 이상
 
 - 응답
   - 성공 예시
