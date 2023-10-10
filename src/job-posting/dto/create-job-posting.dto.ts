@@ -4,11 +4,13 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateJobPostingDto {
   @IsNotEmpty()
   @IsInt()
+  @Min(1)
   companyId: number;
 
   @IsNotEmpty()
@@ -18,6 +20,7 @@ export class CreateJobPostingDto {
 
   @IsOptional()
   @IsInt()
+  @Min(0)
   rewards?: number;
 
   @IsNotEmpty()
