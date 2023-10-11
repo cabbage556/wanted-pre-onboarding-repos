@@ -3,7 +3,7 @@ import { JobPostingController } from './job-posting.controller';
 import { JobPostingService } from './job-posting.service';
 import { CreateJobPostingDto, PageDto } from './dto';
 import { ForbiddenException } from '@nestjs/common';
-import { JobPostingWithCompany } from './infer-types';
+import { JobPostingWithCompany } from './output-types';
 
 describe('JobPostingController', () => {
   let jobPostingController: JobPostingController;

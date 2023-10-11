@@ -6,7 +6,7 @@ import {
   JobPostingWithCompany,
   JobPostingWithCompanyAndJobPostingsId,
   includeCompanyAndSelectJobPostingsId,
-} from './infer-types';
+} from './output-types';
 
 const companyArray = [
   {
