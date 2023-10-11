@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateJobPostingDto,
@@ -12,7 +8,6 @@ import {
   SearchJobPostingsDto,
   UpdateJobPostingDto,
 } from './dto';
-import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { JobPosting } from '@prisma/client';
 import {
   JobPostingWithCompany,
@@ -30,17 +25,12 @@ export class JobPostingService {
   async createJobPosting(
     dto: CreateJobPostingDto, //
   ): Promise<JobPosting> {
-    try {
-      const jobPosting = await this.prismaService.jobPosting.create({
-        data: {
-          ...dto,
-        },
-      });
-      return jobPosting;
-    } catch (error) {
-      if (error instanceof PrismaClientInitializationError)
-        throw new InternalServerErrorException();
-    }
+    const jobPosting = await this.prismaService.jobPosting.create({
+      data: {
+        ...dto,
+      },
+    });
+    return jobPosting;
   }
 
   async getJobPostings({
