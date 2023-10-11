@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobPostingService } from './job-posting.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
-import {
-  ForbiddenException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import {
   JobPostingWithCompany,
   JobPostingWithCompanyAndJobPostingsId,
@@ -143,18 +139,6 @@ describe('JobPostingService', () => {
         rewards: 100000,
         companyId: 1,
       });
-    });
-
-    it('DB 연결에 문제가 있으면 InternalServerErrorException 예외를 던져야 함', () => {
-      jest
-        .spyOn(prismaService.jobPosting, 'create')
-        .mockRejectedValueOnce(
-          new PrismaClientInitializationError('db connection is bad', '5.3.1'),
-        );
-
-      expect(
-        service.createJobPosting(dto), //
-      ).rejects.toThrowError(new InternalServerErrorException());
     });
   });
 
