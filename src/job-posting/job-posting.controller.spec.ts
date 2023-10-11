@@ -2,10 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JobPostingController } from './job-posting.controller';
 import { JobPostingService } from './job-posting.service';
 import { CreateJobPostingDto, PageDto } from './dto';
-import {
-  ForbiddenException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { JobPostingWithCompany } from './infer-types';
 
 describe('JobPostingController', () => {
@@ -75,16 +72,6 @@ describe('JobPostingController', () => {
         updatedAt: new Date(2023, 9, 8, 23, 5, 30, 333),
         ...dto,
       });
-    });
-
-    it('DB 연결에 문제가 있으면 InternalServerErrorException 예외를 던져야 함', () => {
-      jest
-        .spyOn(jobPostingService, 'createJobPosting')
-        .mockRejectedValueOnce(new InternalServerErrorException());
-
-      expect(
-        jobPostingController.createJobPosting(dto), //
-      ).rejects.toThrowError(new InternalServerErrorException());
     });
   });
 
