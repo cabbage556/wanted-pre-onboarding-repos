@@ -56,71 +56,6 @@ npm test
 
 ### 모델링
 
-원티드 홈페이지를 참고하면서 선발 과제의 최소한의 요구 사항에 맞춰 모델링을 진행하였다. 따라서 기본적인 정보들만 담을 수 있도록 데이터베이스 스키마를 구성하였다.
-
-먼저 요구 사항을 구현하기 위해 필요한 데이터를 찾아 보았다.
-
-회사와 관련하여 찾은 데이터들은 다음과 같다.
-
-- 회사 이름
-- 회사 소개
-- 회사 주소
-- 회사 국적(국가)
-- 회사 지역
-- 회사 직종
-- 회사 설명 태그
-- 회사 홈페이지 주소
-- 평균 연봉
-- 직원수
-- 회사 관련 뉴스
-
-이 중에서 고른 것은 다음과 같다.
-
-- 회사 이름
-- 회사 국가
-- 회사 지역
-
-채용공고와 관련하여 찾은 데이터들은 다음과 같다.
-
-- 채용공고 포지션
-- 채용공고 내용
-- 합격보상금
-- 기술스택 및 툴
-- 공고 시간
-- 공고 수정 시간
-- 공고 마감일
-- 근무지역
-
-이 중에서 고른 것은 다음과 같다.
-
-- 채용공고 포지션
-- 채용공고 내용
-- 합격보상금
-- 기술스택 및 툴
-- 공고 시간
-- 공고 수정 시간
-
-사용자 데이터는 다음과 같다.
-
-- 이름
-- 이메일
-- 휴대폰 번호
-
-지원내역과 관련하여 찾은 데이터들은 다음과 같다.
-
-- 지원 회사
-- 지원 포지션
-- 지원 시간
-- 진행 상태
-- 추천 현황
-- 보상금 신청 여부
-
-이 중에서 고른 것은 다음과 같다.
-
-- 지원 시간
-
-최종 모델링은 다음과 같다.
-
 ```
 model Company {
   id          Int    @id @default(autoincrement())
@@ -168,15 +103,6 @@ model Application {
   @@unique([jobPostingId, userId]) // 1회 지원 가능
 }
 ```
-
-- 총 4개의 모델(회사, 채용공고, 사용자, 지원내역)을 구성하였다.
-- Prisma를 사용해 모델링을 진행하였고 필요한 데이터와 데이터의 성격에 맞게 데이터 타입들을 지정하였다.
-- one-to-many 관계 설정
-  - Company - JobPosting (1 - N)
-  - JobPosting - Application (1 - N)
-  - User - Application (1 - N)
-- Application의 경우 jobPostingId와 userId의 조합을 unique로 설정하여 1회만 지원할 수 있게 하였다.
-- 채용공고 삭제 시 delete cascade를 설정하여 채용공고와 관련된 지원내역도 삭제되도록 하였다.
 
 ### ERD
 
@@ -617,12 +543,717 @@ model Application {
     - `403 Forbidden`: 사용자가 채용공고에 이미 한 번 지원한 경우 | userId 또는 jobPostingId에 해당하는 레코드가 없는 경우(외래키 제약조건 실패)
     - `500 InternalServerError`: 서버 오류
 
-## 테스트 코드 작성
+## 요구사항 분석 및 구현
 
-유닛 테스트 코드 작성 경험이 많이 없어서 구글링, 깃허브 검색, 유튜브 강의 등을 참고해 테스트 코드 작성을 시작했다.
+### 요구사항 분석
 
-서비스를 의존성 주입 받는 컨트롤러의 경우 서비스를 모킹하여 컨트롤러 유닛 테스트 코드를 작성하였다. 그리고 PrismaService를 의존성 주입 받는 서비스의 경우 PrismaService를 모킹하여 서비스 유닛 테스트 코드를 작성하였다. 유닛 테스트 코드의 경우 여러 시나리오를 가정해서, 어떤 데이터가 입력되면 모킹 데이터를 반환하게 하여 반환된 데이터가 해당 모킹 데이터와 일치하는지를 확인하는 방식으로 테스트 코드를 작성하였다.
+1. 채용공고 등록
 
-테스트 코드를 작성하는 과정에서 작성했던 코드에 어떤 문제가 있을지를 꽤 오랫동안 생각할 수 있었다. 그 과정 속에서 문제가 발생할 수 있는 시나리오를 찾을 수 있었고 직접 시나리오를 진행하면서 실제로 문제가 발생하는 것도 확인할 수 있었다. 테스트 코드의 필요성을 체감할 수 있었고 견고한 백엔드 애플리케이션을 만드려면 왜 테스트 코드 작성이 필요한지도 알 수 있었다.
+   - 회사는 채용공고를 하나 이상 등록할 수 있다.
+   - 채용공고에는 `[회사id, 채용포지션, 채용내용, 기술스택, 채용보상금]`을 등록한다.
+   - 채용공고 등록 시 `[회사id, 채용포지션, 채용내용]`은 필수값이다.
+   - 채용공고 등록 시 `[기술스택, 채용보상금]`은 선택값이다.
 
-테스트 코드 작성에 많은 시간을 쓰긴 했지만 현재 테스트 코드가 내가 작성한 코드가 정상적으로 동작하는지를 정확하게 테스트하고 있는 지는 아직은 잘 모르겠다. 테스트 코드에 문제가 있겠지만, 여러 자료를 참고하면서 테스트 코드 작성법에 대해 많이 배울 수 있었다.
+2. 채용공고 수정
+
+   - 회사는 채용공고를 수정할 수 있다.
+   - 채용공고의 `[채용포지션, 채용내용, 기술스택, 채용보상금]`을 모두 수정할 수 있다.
+   - 채용공고 수정 시 `[회사id]`는 수정할 수 없다.
+   - 채용공고 수정 시 `[채용포지션, 채용내용, 기술스택, 채용보상금]`은 모두 선택값이다.
+   - 채용공고 수정 시 입력한 값만 수정한다.
+
+3. 채용공고 삭제
+
+   - 회사는 채용공고를 삭제할 수 있다.
+   - 채용공고가 삭제되면 채용공고의 지원내역도 삭제되어야 한다.
+
+4. 채용공고 목록 가져오기
+
+   - 채용공고 목록을 조회한다.
+   - 채용공고 목록 조회 시 회사 정보도 함께 조회한다.
+
+5. 채용공고 검색하기
+
+   - 채용공고를 `회사명` 또는 `채용포지션`을 기준으로 검색한다.
+   - 검색 키워드에 따라 채용공고 목록을 조회한다.
+   - 채용공고 목록 조회 시 회사 정보도 함께 조회한다.
+
+6. 채용공고 상세 페이지 가져오기
+
+   - 채용공고의 모든 데이터를 조회한다.
+   - 채용공고 조회 시 회사 정보와 회사가 올린 다른 채용공고의 id도 조회한다.
+
+7. 채용공고 지원하기
+
+   - 사용자는 채용공고에 한 번만 지원할 수 있다.
+   - 채용공고 지원 시 지원내역에 `[유저id, 채용공고id]`를 등록한다.
+
+### 요구사항 구현
+
+#### 1. 모델링
+
+요구사항 분석 이후, 원티드 홈페이지를 참고하면서 선발 과제의 최소한의 요구 사항에 맞춰 모델링을 진행하였다. 따라서 기본적인 정보들만 담을 수 있도록 모델링하였다.
+
+요구사항을 구현하기 위해 필요한 데이터를 찾아 보았다.
+
+회사
+
+```
+회사 이름
+회사 국가
+회사 지역
+```
+
+채용공고
+
+```
+채용공고 포지션
+채용공고 내용
+합격보상금
+기술스택 및 툴
+공고 시간
+공고 수정 시간
+```
+
+사용자
+
+```
+이름
+이메일
+휴대폰 번호
+```
+
+지원내역
+
+```
+지원 시간
+```
+
+이 외에도 찾은 데이터가 더 있었지만 가장 기본적인 데이터만 선택하였다.
+
+필요하다고 생각한 데이터를 모두 고르고 스키마를 작성했다.
+
+- 총 4개의 모델(회사, 채용공고, 사용자, 지원내역)을 구성하였다.
+- Prisma를 사용해 모델링을 진행하였고 필요한 데이터와 데이터의 성격에 맞게 데이터 타입들을 지정하였다.
+- one-to-many 관계 설정
+  - 회사 - 채용공고 (1 - N)
+  - 채용공고 - 지원내역 (1 - N)
+  - 사용자 - 지원내역 (1 - N)
+- 지원내역의 경우 jobPostingId와 userId의 조합을 unique로 설정하여 1회만 지원할 수 있게 하였다.
+- 채용공고 삭제 시 delete cascade를 설정하여 채용공고와 관련된 지원내역도 삭제되도록 하였다.
+
+#### 2. API 설계
+
+모델링을 작성한 이후, API를 설계했다. 리소스를 크게 `채용공고`, `지원내역` 두 개로 나누었다. 같은 URL은 HTTP 메서드를 통해 구분하였다.
+
+1. 채용공고 API
+
+   - 기본 엔드포인트: /posts
+   - 채용공고 id가 필요한 경우 패스 파라미터 사용: /posts/{id}
+   - 목록 조회, 검색하기와 같이 조건이 필요한 경우 쿼리 파라미터 사용
+     - 목록 조회: /posts/list?page=:page&take=:take
+     - 검색하기: /posts?search=:search&field=:field
+   - HTTP 메서드
+     - 생성: POST
+     - 수정: PATCH
+     - 삭제: DELETE
+     - 조회: GET
+
+2. 지원내역 API
+
+   - 기본 엔드포인트: /applications
+   - HTTP 메서드
+     - 생성: POST
+
+회사, 사용자의 경우 API 없이 `Prisma Studio`를 사용해 직접 데이터베이스에 생성하였다.
+
+#### 3. 코드 작성
+
+##### 채용공고 등록
+
+- DTO 선언 및 유효성 검증(`class-validtor`)
+
+  ```ts
+  export class CreateJobPostingDto {
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1)
+    companyId: number;
+
+    @IsNotEmpty()
+    @IsString()
+    @MaxLength(100)
+    position: string;
+
+    @IsOptional()
+    @IsInt()
+    @Min(0)
+    rewards?: number;
+
+    @IsNotEmpty()
+    @IsString()
+    content: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(100)
+    stack?: string;
+  }
+  ```
+
+  - 스키마에서 선언한 데이터 타입 및 제약조건에 맞게 입력 값에 대해 유효성 검증
+
+- 컨트롤러 라우트 핸들러(POST /posts)
+
+  ```ts
+  @Post()
+  createJobPosting(
+    @Body() dto: CreateJobPostingDto, //
+  ): Promise<JobPosting> {
+    return this.jobPostingService.createJobPosting(dto);
+  }
+  ```
+
+  - 유효성 검증을 통과한 dto를 서비스 로직에 전달
+  - 서비스에서 리턴한 채용공고를 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async createJobPosting(
+    dto: CreateJobPostingDto, //
+  ): Promise<JobPosting> {
+    const jobPosting = await this.prismaService.jobPosting.create({
+      data: {
+        ...dto,
+      },
+    });
+    return jobPosting;
+  }
+  ```
+
+  - JobPosting 테이블에 레코드 생성 후 컨트롤러에 리턴
+
+##### 채용공고 수정
+
+- DTO 선언 및 유효성 검증(`class-validtor`)
+
+  ```ts
+  export class UpdateJobPostingDto extends PartialType(
+    OmitType(CreateJobPostingDto, ['companyId'] as const),
+  ) {}
+  ```
+
+  - `CreateJobPostingDto` 중에서 `companyId`를 제외하고 모든 프로퍼티를 옵셔널로 선언
+  - 스키마에서 선언한 데이터 타입 및 제약조건에 맞게 입력 값에 대해 유효성 검증
+
+- id 패스 파라미터 유효성 검증(`IdValidationPipe`)
+
+  ```ts
+  export class IdValidationPipe implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+      value = +value;
+      if (!this.isInteger(value) || !this.isPositive(value))
+        throw new BadRequestException(`유효하지 않은 id`);
+      return +value;
+    }
+
+    private isInteger(value: any): boolean {
+      return Number.isInteger(value);
+    }
+
+    private isPositive(value: any): boolean {
+      return value > 0;
+    }
+  }
+  ```
+
+  - 음수이거나 문자열 정수값이 아닌 경우에 대해 유효성 검증
+
+- 컨트롤러 라우트 핸들러(`PATCH /posts/{id}`)
+
+  ```ts
+  @Patch(':id')
+  updateJobPosting(
+    @Param('id', IdValidationPipe) id: number, //
+    @Body() dto: UpdateJobPostingDto, //
+  ): Promise<JobPosting> {
+    return this.jobPostingService.updateJobPosting(id, dto);
+  }
+  ```
+
+  - 유효성 검증을 통과한 id, dto를 서비스 로직에 전달
+  - 서비스에서 리턴한 채용공고를 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async updateJobPosting(
+    id: number, //
+    dto: UpdateJobPostingDto,
+  ): Promise<JobPosting> {
+    const jobPosting = await this.getJobPostingById(id);
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+    return this.prismaService.jobPosting.update({
+      where: {
+        id,
+      },
+      data: {
+        ...dto,
+      },
+    });
+  }
+  ```
+
+  - JobPosting 테이블에서 레코드 조회 후 존재하지 않으면 ForbiddenException 응답
+  - JobPosting 테이블에서 레코드 업데이트 후 컨트롤러에 리턴
+
+##### 채용공고 삭제
+
+- id 패스 파라미터 유효성 검증(`IdValidationPipe`)
+
+  ```ts
+  export class IdValidationPipe implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+      value = +value;
+      if (!this.isInteger(value) || !this.isPositive(value))
+        throw new BadRequestException(`유효하지 않은 id`);
+      return +value;
+    }
+
+    private isInteger(value: any): boolean {
+      return Number.isInteger(value);
+    }
+
+    private isPositive(value: any): boolean {
+      return value > 0;
+    }
+  }
+  ```
+
+  - 음수이거나 문자열 정수값이 아닌 경우에 대해 유효성 검증
+
+- 컨트롤러 라우트 핸들러(`DELETE /posts/{id}`)
+
+  ```ts
+  @Delete(':id')
+  deleteJobPosting(
+    @Param('id', IdValidationPipe) id: number, //
+  ): Promise<{ deleted: boolean; message?: string }> {
+    return this.jobPostingService.deleteJobPosting(id);
+  }
+  ```
+
+  - 유효성 검증을 통과한 id를 서비스 로직에 전달
+  - 서비스에서 리턴한 삭제 성공 여부 객체를 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async deleteJobPosting(
+    id: number, //
+  ): Promise<{ deleted: boolean; message?: string }> {
+    const jobPosting = await this.getJobPostingById(id);
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+    try {
+      await this.prismaService.jobPosting.delete({
+        where: {
+          id,
+        },
+      });
+      return { deleted: true };
+    } catch (_) {
+      return { deleted: false, message: '삭제 실패' };
+    }
+  }
+  ```
+
+  - JobPosting 테이블에서 레코드 조회 후 존재하지 않으면 ForbiddenException 응답
+  - JobPosting 테이블에서 레코드 제거
+    - 성공 시 { deleted: true } 리턴
+    - 실패 시 { deleted: false, message: '삭제 실패' } 리턴
+
+##### 채용공고 목록 가져오기
+
+- DTO 선언 및 유효성 검증(`class-valiator`, `class-transformer`)
+
+  ```ts
+  export class GetJobPostingsDto {
+    @Type(() => Number)
+    @IsOptional()
+    @IsInt()
+    page?: number = 1;
+
+    @Type(() => Number)
+    @IsOptional()
+    @IsInt()
+    take?: number = 10;
+  }
+  ```
+
+  - 페이지네이션 적용
+  - 쿼리 파라미터 page, take에 대해 유효성 검증
+  - 전달하지 않으면 각각 기본값 1, 10 사용
+
+- 컨트롤러 라우트 핸들러(`GET /posts/list?page=:page&take=:take`)
+
+  ```ts
+  @Get('list')
+  getJobPostings(
+    @Query() dto: GetJobPostingsDto, //
+  ): Promise<PageDto<JobPosting>> {
+    return this.jobPostingService.getJobPostings(dto);
+  }
+  ```
+
+  - 유효성 검증을 통과한 dto를 서비스 로직에 전달
+  - 서비스에서 리턴한 채용공고 목록을 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async getJobPostings({
+    page,
+    take,
+  }: GetJobPostingsDto): Promise<PageDto<JobPostingWithCompany>> {
+    const totalCounts = await this.prismaService.jobPosting.count();
+    const pageMetaDto = new PageMetaDto({ totalCounts, page, take });
+    const jobPostings = await this.prismaService.jobPosting.findMany({
+      take: pageMetaDto.take,
+      skip: (pageMetaDto.page - 1) * pageMetaDto.take,
+      include: includeCompany,
+    });
+
+    if (pageMetaDto.lastPage >= pageMetaDto.page) {
+      return new PageDto<JobPostingWithCompany>(jobPostings, pageMetaDto);
+    } else {
+      throw new ForbiddenException('리소스 접근 거부');
+    }
+  }
+  ```
+
+  - include를 통해 relation 쿼리를 수행해 회사 정보까지 조회
+  - 요청 시 전달한 page가 현재 레코드로 생성할 수 있는 마지막 페이지보다 크면 ForbiddenException 응답
+  - 그렇지 않으면 조회한 채용공고 목록과 페이지네이션 메타데이터를 컨트롤러에 리턴
+
+- PageDto
+
+  ```ts
+  export class PageDto<T> {
+    constructor(
+      private readonly data: T[], //
+      private readonly meta: PageMetaDto,
+    ) {}
+  }
+  ```
+
+  - getJobPostings 서비스 로직의 리턴 타입
+  - data 프로퍼티에 채용공고 할당
+  - meta 프로퍼티에 페이지네이션 메타데이터 할당
+
+- PageMetaDto
+
+  ```ts
+  export class PageMetaDto {
+    readonly page: number;
+    readonly take: number;
+    readonly startPage: number;
+    readonly lastPage: number;
+    readonly pageList: number[];
+    readonly hasPrevPage: boolean;
+    readonly hasNextPage: boolean;
+
+    constructor({ totalCounts, page, take }: PageMetaDtoParameters) {
+      // page, take 값 설정
+      //    음수 입력 시 기본값 1, 10 사용
+      page = page <= 0 ? 1 : page;
+      take = take <= 0 ? 10 : take;
+
+      const PAGE_LIST_SIZE = 10; // 페이지에서 보여줄 최대 페이지 수
+      const totalPage = Math.ceil(totalCounts / take); // 총 페이지 수
+      let quotient = Math.floor(page / PAGE_LIST_SIZE); // 시작 페이지를 구하기 위한 몫
+      if (page % PAGE_LIST_SIZE === 0) quotient -= 1;
+
+      this.page = page;
+      this.take = take;
+
+      this.startPage = quotient * PAGE_LIST_SIZE + 1; // 페이지에서 보여줄 시작 페이지
+      const endPage =
+        this.startPage + PAGE_LIST_SIZE - 1 < totalPage
+          ? this.startPage + PAGE_LIST_SIZE - 1
+          : totalPage; // 페이지에서 보여줄 마지막 페이지
+      this.lastPage = totalPage; // 총 페이지
+      this.pageList = Array.from(
+        { length: endPage - this.startPage + 1 },
+        (_, i) => this.startPage + i,
+      ); // 페이지에 표시할 페이지 번호 배열
+
+      this.hasPrevPage = this.page > 1;
+      this.hasNextPage = this.page < totalPage;
+    }
+  }
+  ```
+
+  - offset 기반 페이지네이션을 적용하기 위한 메타데이터
+  - 쿼리 파라미터로 입력한 page, take 값에 따라 페이지네이션 메타데이터 생성
+
+- includeCompany, JobPostingWithCompany
+
+  ```ts
+  export const includeCompany = {
+    company: true,
+  } satisfies Prisma.JobPostingInclude;
+
+  export type JobPostingWithCompany = Prisma.JobPostingGetPayload<{
+    include: typeof includeCompany;
+  }>;
+  ```
+
+  - relation 쿼리 수행 시 리턴하는 데이터 타입 선언
+
+##### 채용공고 검색하기(회사명, 채용포지션)
+
+- DTO 선언 및 유효성 검증
+
+  ```ts
+  export class SearchJobPostingsDto {
+    @IsNotEmpty()
+    @IsString()
+    @Length(1, 100) // 1글자부터 position 필드 최대 길이 100글자까지
+    search: string;
+
+    @IsIn(['position', 'company'])
+    field: string;
+  }
+  ```
+
+  - 스키마에서 선언한 데이터 타입 및 제약조건에 맞게 입력 값에 대해 유효성 검증
+  - field의 경우 `company(회사명)`, `position(채용포지션)`에 속하는지 확인
+
+- 컨트롤러 라우트 핸들러(`GET /posts?search=:search&field=:field`)
+
+  ```ts
+  @Get()
+  searchJobPostings(
+    @Query() dto: SearchJobPostingsDto, //
+  ): Promise<JobPosting[]> {
+    return this.jobPostingService.searchJobPostings(dto);
+  }
+  ```
+
+  - 유효성 검증을 통과한 dto를 서비스 로직에 전달
+  - 서비스 로직에서 리턴한 채용공고 목록을 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async searchJobPostings({
+    search,
+    field,
+  }: SearchJobPostingsDto): Promise<JobPostingWithCompany[]> {
+    let jobPostings = null;
+    switch (field) {
+      case 'company':
+        jobPostings = await this.searchInCompany(search);
+        break;
+      case 'position':
+        jobPostings = await this.searchInPosition(search);
+        break;
+      default:
+        jobPostings = [];
+    }
+
+    return jobPostings;
+  }
+  ```
+
+  - company 검색 또는 position 검색에 따라 별도의 서비스 로직 호출
+  - 검색한 채용공고 목록을 컨트롤러에 리턴
+
+- searchInCompany, searchInPosition
+
+  ```ts
+  private searchInCompany(
+    search: string, //
+  ): Promise<JobPostingWithCompany[]> {
+    return this.prismaService.jobPosting.findMany({
+      where: {
+        company: {
+          name: {
+            contains: search,
+          },
+        },
+      },
+      include: includeCompany,
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+  }
+
+  private searchInPosition(
+    search: string, //
+  ): Promise<JobPostingWithCompany[]> {
+    return this.prismaService.jobPosting.findMany({
+      where: {
+        position: {
+          contains: search,
+        },
+      },
+      include: includeCompany,
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+  }
+  ```
+
+  - 회사명 또는 채용포지션에 대해 검색 키워드 LIKE 검색 수행
+  - include를 통해 relation 쿼리를 수행해 회사 정보까지 조회
+  - 생성일 기준 오름차순 정렬
+
+##### 채용공고 상세 페이지 가져오기
+
+- id 패스 파라미터 유효성 검증(`IdValidationPipe`)
+
+  ```ts
+  export class IdValidationPipe implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+      value = +value;
+      if (!this.isInteger(value) || !this.isPositive(value))
+        throw new BadRequestException(`유효하지 않은 id`);
+      return +value;
+    }
+
+    private isInteger(value: any): boolean {
+      return Number.isInteger(value);
+    }
+
+    private isPositive(value: any): boolean {
+      return value > 0;
+    }
+  }
+  ```
+
+  - 음수이거나 문자열 정수값이 아닌 경우에 대해 유효성 검증
+
+- 컨트롤러 라우트 핸들러(`GET /posts/{id}`)
+
+  ```ts
+  @Get(':id')
+  getDetailPage(
+    @Param('id', IdValidationPipe) id: number, //
+  ): Promise<JobPosting> {
+    return this.jobPostingService.getDetailPage(id);
+  }
+  ```
+
+  - 유효성 검증을 통과한 id를 서비스 로직에 전달
+  - 서비스에서 리턴한 채용공고를 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async getDetailPage(
+    id: number, //
+  ): Promise<JobPostingWithCompanyAndJobPostingsId> {
+    const jobPosting = await this.prismaService.jobPosting.findUnique({
+      where: { id },
+      include: includeCompanyAndSelectJobPostingsId,
+    });
+    if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
+
+    return jobPosting;
+  }
+  ```
+
+  - JobPosting 테이블에서 레코드 조회 후 존재하지 않으면 ForbiddenException 응답
+  - include를 통해 relation 쿼리를 수행해 회사 정보, 회사가 올린 채용공고의 id까지 조회
+  - 조회한 채용공고를 컨트롤러에 리턴
+
+- includeCompanyAndSelectJobPostingsId, JobPostingWithCompanyAndJobPostingsId
+
+  ```ts
+  export const includeCompanyAndSelectJobPostingsId = {
+    company: {
+      include: {
+        jobPostings: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    },
+  } satisfies Prisma.JobPostingInclude;
+
+  export type JobPostingWithCompanyAndJobPostingsId =
+    Prisma.JobPostingGetPayload<{
+      include: typeof includeCompanyAndSelectJobPostingsId;
+    }>;
+  ```
+
+  - relation 쿼리 수행 시 리턴하는 데이터 타입 선언
+
+##### 채용공고 지원하기
+
+- DTO 선언 및 유효성 검증
+
+  ```ts
+  export class CreateApplicationDto {
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1)
+    userId: number;
+
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1)
+    jobPostingId: number;
+  }
+  ```
+
+  - 스키마에서 선언한 데이터 타입 및 제약조건에 맞게 입력 값에 대해 유효성 검증
+
+- 컨트롤러 라우트 핸들러(`POST /applications`)
+
+  ```ts
+  @Post()
+  createApplication(
+    @Body() dto: CreateApplicationDto, //
+  ): Promise<Application> {
+    return this.applicationService.createApplication(dto);
+  }
+  ```
+
+  - 유효성 검증을 통과한 dto를 서비스 로직에 전달
+  - 서비스에서 리턴한 지원내역을 클라이언트에 응답
+
+- 서비스 로직
+
+  ```ts
+  async createApplication(
+    dto: CreateApplicationDto, //
+  ): Promise<Application> {
+    try {
+      const application = await this.prismaService.application.create({
+        data: {
+          ...dto,
+        },
+      });
+      return application;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002')
+          throw new ForbiddenException('이미 지원하였음');
+        else if (error.code === 'P2003')
+          throw new ForbiddenException('리소스 접근 거부');
+      }
+    }
+  }
+  ```
+
+  - 지원내역 레코드를 생성하여 컨트롤러에 리턴
+  - 이미 지원한 경우 ForbiddenException 응답
+  - 외래키 제약조건이 실패하는 경우(userId, jobPostingId에 해당하는 레코드가 없음) ForbiddenException 응답
