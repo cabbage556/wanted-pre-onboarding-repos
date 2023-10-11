@@ -4,12 +4,6 @@
 
 ## 실행하기
 
-서버(로컬)
-
-- `npm install`
-- `npm run start`
-- 3000번 포트 사용
-
 데이터베이스(도커 컴포즈)
 
 - 도커 컴포즈를 사용하므로 도커 설치가 필요합니다.(사용한 도커 버전: v20.10.22)
@@ -17,12 +11,20 @@
 - `docker-compose up`
 - 5432번 포트 사용
 
+서버(로컬)
+
+- `npm install`
+- `npm run start`
+- 3000번 포트 사용
+
 Prisma
 
-- 마이그레이션: `npx prisma migrate dev`
-- Client 생성: `npx prisma generate`
+- 마이그레이션 실행 및 Prisma Client 생성: `npx prisma migrate dev`
+- 데이터베이스 시드 스크립트 실행: `npx prisma db seed`
+  - 회사 더미 데이터와 사용자 더미 데이터 생성
 - Studio 실행: `npx prisma studio`
-  - 회사, 사용자 등록 가능
+  - 데이터베이스 데이터 확인 가능
+  - 5555번 포트 사용
 
 ## 테스트하기
 
@@ -59,7 +61,7 @@ npm test
 ```
 model Company {
   id          Int    @id @default(autoincrement())
-  name        String @db.VarChar(30)
+  name        String @db.VarChar(30) @unique
   nationality String @db.VarChar(30)
   region      String @db.VarChar(30)
 
