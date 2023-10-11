@@ -22,8 +22,9 @@ Prisma
 - 마이그레이션 실행 및 Prisma Client 생성: `npx prisma migrate dev`
 - 데이터베이스 시드 스크립트 실행: `npx prisma db seed`
   - 회사 더미 데이터와 사용자 더미 데이터 생성
-- Studio 실행: `npx prisma studio`
-  - 데이터베이스 데이터 확인 가능
+- Prisma Studio 실행: `npx prisma studio`
+  - 데이터베이스 데이터를 확인할 수 있습니다.
+  - 데이터베이스 시드 스크립트를 사용하지 않고 prisma studio를 사용해 직접 더미 데이터를 생성할 수 있습니다.
   - 5555번 포트 사용
 
 ## 테스트하기
@@ -114,7 +115,9 @@ model Application {
 
 ## API 명세서
 
-**회사, 사용자 레코드 생성의 경우 `prisma studio`를 사용하였다.** 사전과제의 요구 사항에 따라 총 7개의 API를 구현하였다.
+**데이터베이스에 회사 및 사용자 더미 데이터를 생성하기 위해 `npx prisma db seed` 스크립트를 사용할 수 있습니다. 회사, 사용자 데이터를 직접 생성하려면 `npx prisma studio` 스크립트를 통해 prisma studio를 사용할 수 있습니다.**
+
+사전과제의 요구 사항에 따라 총 7개의 API를 구현하였다.
 
 | 설명                       | 메서드 | URL                                  |
 | -------------------------- | ------ | ------------------------------------ |
