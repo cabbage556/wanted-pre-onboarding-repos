@@ -33,6 +33,7 @@ import {
   JobPostingWithCompanyAndJobPostingsId,
 } from './output-types';
 import { JobPostingEntity } from './entities';
+import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -116,10 +117,32 @@ export class JobPostingController {
     return this.jobPostingService.updateJobPosting(id, dto);
   }
 
+  @ApiOperation({
+    summary: '채용공고 삭제',
+    description: '채용공고를 삭제하고 삭제 성공 여부를 반환한다.',
+  })
+  @ApiOkResponse({
+    description: '채용공고 삭제 성공 여부',
+    type: DeleteJobPostingDto,
+  })
+  @ApiBadRequestResponse({
+    description: '요청 패스 파라미터 id 유효성 검사 실패',
+  })
+  @ApiForbiddenResponse({
+    description: `에러 메세지: '리소스 접근 거부'(id에 해당하는 채용공고가 없는 경우)`,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 에러',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '채용공고id, 1 이상, 정수값',
+    example: 1,
+  })
   @Delete(':id')
   deleteJobPosting(
     @Param('id', IdValidationPipe) id: number, //
-  ): Promise<{ deleted: boolean; message?: string }> {
+  ): Promise<DeleteJobPostingDto> {
     return this.jobPostingService.deleteJobPosting(id);
   }
 }

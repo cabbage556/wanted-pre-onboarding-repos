@@ -16,6 +16,7 @@ import {
   includeCompanyAndSelectJobPostingsId,
 } from './output-types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
 
 @Injectable()
 export class JobPostingService {
@@ -150,7 +151,7 @@ export class JobPostingService {
 
   async deleteJobPosting(
     id: number, //
-  ): Promise<{ deleted: boolean; message?: string }> {
+  ): Promise<DeleteJobPostingDto> {
     const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
