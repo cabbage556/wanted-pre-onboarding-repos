@@ -15,6 +15,7 @@ import {
   includeCompany,
   includeCompanyAndSelectJobPostingsId,
 } from './output-types';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class JobPostingService {
@@ -25,12 +26,19 @@ export class JobPostingService {
   async createJobPosting(
     dto: CreateJobPostingDto, //
   ): Promise<JobPosting> {
-    const jobPosting = await this.prismaService.jobPosting.create({
-      data: {
-        ...dto,
-      },
-    });
-    return jobPosting;
+    try {
+      const jobPosting = await this.prismaService.jobPosting.create({
+        data: {
+          ...dto,
+        },
+      });
+      return jobPosting;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2003')
+          throw new ForbiddenException('리소스 접근 거부');
+      }
+    }
   }
 
   async getJobPostings({
