@@ -14,7 +14,7 @@ import {
   JobPostingWithCompanyAndJobPostingsId,
   includeCompany,
   includeCompanyAndSelectJobPostingsId,
-} from './infer-types';
+} from './output-types';
 
 @Injectable()
 export class JobPostingService {
