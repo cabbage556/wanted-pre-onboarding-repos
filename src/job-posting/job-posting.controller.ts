@@ -23,7 +23,9 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import {
@@ -84,6 +86,28 @@ export class JobPostingController {
     return this.jobPostingService.getDetailPage(id);
   }
 
+  @ApiOperation({
+    summary: '채용공고 수정',
+    description: '채용공고를 수정하고 수정한 채용공고를 반환한다.',
+  })
+  @ApiOkResponse({
+    description: '채용공고를 성공적으로 수정하였음',
+    type: JobPostingEntity,
+  })
+  @ApiBadRequestResponse({
+    description: '요청 패스 파라미터 id 또는 요청 바디 값 유효성 검사 실패',
+  })
+  @ApiForbiddenResponse({
+    description: `에러 메세지: '리소스 접근 거부'(id에 해당하는 채용공고가 없는 경우)`,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 에러',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '채용공고id, 1 이상, 정수값',
+    example: 1,
+  })
   @Patch(':id')
   updateJobPosting(
     @Param('id', IdValidationPipe) id: number, //
