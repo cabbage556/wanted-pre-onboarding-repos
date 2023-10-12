@@ -21,6 +21,7 @@ import { IdValidationPipe } from '../pipes';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
@@ -38,8 +39,10 @@ import {
   JobPostingWithCompanyEntity,
 } from './entities';
 import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
+import { ApiPaginatedResponse } from 'src/swagger/api-response/api-paginated-response';
 
 @ApiTags('posts')
+@ApiExtraModels(PageDto)
 @Controller('posts')
 export class JobPostingController {
   constructor(
@@ -70,6 +73,24 @@ export class JobPostingController {
     return this.jobPostingService.createJobPosting(dto);
   }
 
+  @ApiOperation({
+    summary: '채용공고 목록 조회(페이지네이션)',
+    description:
+      '채용공고 목록을 조회하고, 채용공고 목록(data)과 페이지네이션 메타데이터(meta)를 리턴한다.',
+  })
+  @ApiPaginatedResponse(
+    JobPostingWithCompanyEntity,
+    '채용공고 목록(data) 및 페이지네이션 메타데이터(meta)',
+  )
+  @ApiBadRequestResponse({
+    description: '요청 쿼리 파라미터 유효성 검사 실패',
+  })
+  @ApiForbiddenResponse({
+    description: `에러 메세지: '리소스 접근 거부'(요청 페이지가 마지막 페이지보다 큰 경우)`,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 에러',
+  })
   @Get('list')
   getJobPostings(
     @Query() dto: GetJobPostingsDto, //

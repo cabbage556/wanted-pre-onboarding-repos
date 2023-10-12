@@ -1,12 +1,50 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PageMetaDtoParameters } from '../interface';
 
 export class PageMetaDto {
+  @ApiProperty({
+    description: '페이지',
+    default: 1,
+    example: 1,
+  })
   readonly page: number;
+
+  @ApiProperty({
+    description: '한 페이지에 보여줄 채용공고 갯수',
+    default: 10,
+    example: 10,
+  })
   readonly take: number;
+
+  @ApiProperty({
+    description: '시작 페이지',
+    example: 1,
+  })
   readonly startPage: number;
+
+  @ApiProperty({
+    description: '마지막 페이지',
+    example: 1,
+  })
   readonly lastPage: number;
+
+  @ApiProperty({
+    description: '페이지 번호 배열(시작 페이지 ~ 마지막 페이지)',
+    type: [Number],
+    example: [1],
+  })
   readonly pageList: number[];
+
+  @ApiProperty({
+    description: '이전 페이지 존재 여부',
+    example: false,
+  })
   readonly hasPrevPage: boolean;
+
+  @ApiProperty({
+    description: '다음 페이지 존재 여부',
+    example: false,
+  })
   readonly hasNextPage: boolean;
 
   constructor({ totalCounts, page, take }: PageMetaDtoParameters) {
