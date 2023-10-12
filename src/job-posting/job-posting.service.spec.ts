@@ -7,6 +7,7 @@ import {
   JobPostingWithCompanyAndJobPostingsId,
   includeCompanyAndSelectJobPostingsId,
 } from './output-types';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 const companyArray = [
   {
@@ -139,6 +140,24 @@ describe('JobPostingService', () => {
         rewards: 100000,
         companyId: 1,
       });
+    });
+
+    it('companyId가 존재하지 않으면 ForbiddenException 예외를 던져야 함', () => {
+      jest
+        .spyOn(prismaService.jobPosting, 'create')
+        .mockRejectedValueOnce(
+          new PrismaClientKnownRequestError(
+            'Foreign key constraint failed on the field: {companyId}',
+            { code: 'P2003', clientVersion: '5.3.1' },
+          ),
+        );
+
+      expect(
+        service.createJobPosting({
+          ...dto,
+          companyId: 3,
+        }),
+      ).rejects.toThrowError(new ForbiddenException('리소스 접근 거부'));
     });
   });
 

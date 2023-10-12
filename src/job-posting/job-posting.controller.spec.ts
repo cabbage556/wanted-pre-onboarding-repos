@@ -73,6 +73,16 @@ describe('JobPostingController', () => {
         ...dto,
       });
     });
+
+    it('ForbiddenException 예외를 던져야 함', () => {
+      jest
+        .spyOn(jobPostingService, 'createJobPosting')
+        .mockRejectedValueOnce(new ForbiddenException('리소스 접근 거부'));
+
+      expect(jobPostingController.createJobPosting(dto)).rejects.toThrowError(
+        new ForbiddenException('리소스 접근 거부'),
+      );
+    });
   });
 
   describe('getJobPostings', () => {
