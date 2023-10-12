@@ -32,7 +32,10 @@ import {
   JobPostingWithCompany,
   JobPostingWithCompanyAndJobPostingsId,
 } from './output-types';
-import { JobPostingEntity } from './entities';
+import {
+  JobPostingEntity,
+  JobPostingWithCompanyAndJobPostingsIdEntity,
+} from './entities';
 import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
 
 @ApiTags('posts')
@@ -80,6 +83,29 @@ export class JobPostingController {
     return this.jobPostingService.searchJobPostings(dto);
   }
 
+  @ApiOperation({
+    summary: '채용공고 상세 페이지 조회',
+    description:
+      '채용공고를 조회해 리턴한다. 채용공고를 올린 회사의 채용공고id들을 함께 리턴한다.',
+  })
+  @ApiOkResponse({
+    description: '채용공고 상세 페이지 조회 결과',
+    type: JobPostingWithCompanyAndJobPostingsIdEntity,
+  })
+  @ApiBadRequestResponse({
+    description: '요청 패스 파라미터 id 유효성 검사 실패',
+  })
+  @ApiForbiddenResponse({
+    description: `에러 메세지: '리소스 접근 거부'(id에 해당하는 채용공고가 없는 경우)`,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 에러',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '채용공고id, 1 이상, 정수값',
+    example: 1,
+  })
   @Get(':id')
   getDetailPage(
     @Param('id', IdValidationPipe) id: number, //
