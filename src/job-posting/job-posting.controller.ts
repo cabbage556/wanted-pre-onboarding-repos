@@ -51,10 +51,10 @@ export class JobPostingController {
 
   @ApiOperation({
     summary: '채용공고 등록',
-    description: '채용공고를 생성하고 생성한 채용공고 정보를 반환한다.',
+    description: '채용공고를 생성하고 생성한 채용공고 정보를 응답합니다.',
   })
   @ApiCreatedResponse({
-    description: '채용공고를 성공적으로 생성하였음',
+    description: '채용공고 생성 결과',
     type: JobPostingEntity,
   })
   @ApiBadRequestResponse({
@@ -76,7 +76,7 @@ export class JobPostingController {
   @ApiOperation({
     summary: '채용공고 목록 조회(페이지네이션)',
     description:
-      '채용공고 목록을 조회하고, 채용공고 목록(data)과 페이지네이션 메타데이터(meta)를 리턴한다.',
+      '채용공고 목록을 조회하고, 채용공고 목록(data)과 페이지네이션 메타데이터(meta)를 응답합니다.',
   })
   @ApiPaginatedResponse(
     JobPostingWithCompanyEntity,
@@ -101,7 +101,7 @@ export class JobPostingController {
   @ApiOperation({
     summary: '채용공고 검색',
     description:
-      '채용공고를 검색해 리턴한다. 회사 이름(field=company) 또는 채용포지션(field=position)에서 검색한다.',
+      '채용공고를 검색해 응답합니다. 검색 필드에는 회사 이름(company)과 채용포지션(position)이 존재합니다. 회사 이름을 검색하려면 field 쿼리 파라미터에 company를 전달합니다. 채용포지션을 검색하려면 field 쿼리 파라미터에 position을 전달합니다.',
   })
   @ApiOkResponse({
     description: '채용공고 검색 결과',
@@ -123,7 +123,7 @@ export class JobPostingController {
   @ApiOperation({
     summary: '채용공고 상세 페이지 조회',
     description:
-      '채용공고를 조회해 리턴한다. 채용공고를 올린 회사의 채용공고id들을 함께 리턴한다.',
+      '단일 채용공고를 조회해 응답합니다. 해당 채용공고를 올린 회사의 채용공고가 더 있다면 채용공고의 id들을 함께 응답합니다.',
   })
   @ApiOkResponse({
     description: '채용공고 상세 페이지 조회 결과',
@@ -152,10 +152,10 @@ export class JobPostingController {
 
   @ApiOperation({
     summary: '채용공고 수정',
-    description: '채용공고를 수정하고 수정한 채용공고를 반환한다.',
+    description: '채용공고를 수정하고 수정한 채용공고 정보를 응답합니다.',
   })
   @ApiOkResponse({
-    description: '채용공고를 성공적으로 수정하였음',
+    description: '채용공고 수정 결과',
     type: JobPostingEntity,
   })
   @ApiBadRequestResponse({
@@ -182,7 +182,8 @@ export class JobPostingController {
 
   @ApiOperation({
     summary: '채용공고 삭제',
-    description: '채용공고를 삭제하고 삭제 성공 여부를 반환한다.',
+    description:
+      '채용공고를 삭제하고 삭제 성공 여부를 응답합니다. 채용공고 삭제 시 채용공고에 지원한 지역내역도 모두 삭제됩니다.',
   })
   @ApiOkResponse({
     description: '채용공고 삭제 성공 여부',
