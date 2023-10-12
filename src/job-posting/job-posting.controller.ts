@@ -35,6 +35,7 @@ import {
 import {
   JobPostingEntity,
   JobPostingWithCompanyAndJobPostingsIdEntity,
+  JobPostingWithCompanyEntity,
 } from './entities';
 import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
 
@@ -76,6 +77,21 @@ export class JobPostingController {
     return this.jobPostingService.getJobPostings(dto);
   }
 
+  @ApiOperation({
+    summary: '채용공고 검색',
+    description:
+      '채용공고를 검색해 리턴한다. 회사 이름(field=company) 또는 채용포지션(field=position)에서 검색한다.',
+  })
+  @ApiOkResponse({
+    description: '채용공고 검색 결과',
+    type: [JobPostingWithCompanyEntity],
+  })
+  @ApiBadRequestResponse({
+    description: '요청 쿼리 파라미터 유효성 검사 실패',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 에러',
+  })
   @Get()
   searchJobPostings(
     @Query() dto: SearchJobPostingsDto, //
