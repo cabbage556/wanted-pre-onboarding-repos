@@ -2,13 +2,37 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { CreateApplicationDto } from './dto';
 import { Application } from '@prisma/client';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApplicationEntity } from './entities';
 
+@ApiTags('applications')
 @Controller('applications')
 export class ApplicationController {
   constructor(
     private applicationService: ApplicationService, //
   ) {}
 
+  @ApiOperation({
+    summary: '채용공고 지원',
+    description:
+      '사용자가 채용공고에 지원한다. 사용자는 하나의 채용공고에 한 번만 지원할 수 있다.',
+  })
+  @ApiCreatedResponse({
+    description: '채용공고에 성공적으로 지원하였음',
+    type: ApplicationEntity,
+  })
+  @ApiBadRequestResponse({
+    description: '요청 바디 값 유효성 검사 실패',
+  })
+  @ApiForbiddenResponse({
+    description: `에러 메세지: '이미 지원하였음'(이미 지원한 경우) 또는 에러 메세지: '리소스 접근 거부'(userId, jobPostingId에 해당하는 사용자, 채용공고가 없는 경우)`,
+  })
   @Post()
   createApplication(
     @Body() dto: CreateApplicationDto, //
