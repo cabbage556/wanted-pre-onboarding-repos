@@ -34,8 +34,9 @@ npm test
 ```
 
 - `jest` 테스팅 라이브러리 사용
+- 주요 컨트롤러와 서비스에 대해 유닛 테스트 작성
 
-주요 컨트롤러와 서비스에 대해 유닛 테스트를 작성하였다. 작성한 컨트롤러와 서비스는 다음과 같다.
+유닛 테스트를 작성한 컨트롤러와 서비스는 다음과 같다.
 
 지원내역(Application)
 
@@ -280,13 +281,13 @@ model Application {
     ```
 
   - 실패2
-    - `400 Bad Request`: 요청 패스 파라미터 값 유효성 검사 실패 | 요청 바디 값 유효성 검사 실패
+    - `400 Bad Request`: 요청 패스 파라미터 값 유효성 검사 실패
     - `403 Forbidden`: id에 해당하는 채용공고 레코드가 없는 경우
     - `500 InternalServerError`: 서버 오류
 
-### 4. 채용공고 목록 가져오기
+### 4. 채용공고 목록 조회(페이지네이션)
 
-채용공고 목록을 조회하고, 채용공고 목록(data)과 페이지네이션 메타데이터(meta)를 응답합니다.
+채용공고 목록을 조회하고, 채용공고 목록(`data`)과 페이지네이션 메타데이터(`meta`)를 응답합니다.
 
 - 엔드포인트
 
@@ -360,7 +361,7 @@ model Application {
     - `403 Forbidden`: 요청 페이지가 마지막 페이지보다 큰 경우
     - `500 InternalServerError`: 서버 오류
 
-### 5. 채용공고 검색하기(회사 이름)
+### 5. 채용공고 검색(회사 이름)
 
 회사 이름을 검색해 해당하는 회사의 채용공고 목록을 응답합니다. 회사 이름을 검색하려면 field 쿼리 파라미터에 company를 전달합니다.
 
@@ -421,7 +422,7 @@ model Application {
     - `400 Bad Request`: 요청 쿼리 파라미터 값 유효성 검증 실패
     - `500 InternalServerError`: 서버 오류
 
-### 6. 채용공고 검색하기(채용포지션)
+### 6. 채용공고 검색(채용포지션)
 
 채용포지션을 검색해 해당하는 채용포지션의 채용공고 목록을 응답합니다. 채용포지션을 검색하려면 field 쿼리 파라미터에 position을 전달합니다.
 
@@ -482,9 +483,9 @@ model Application {
     - `400 Bad Request`: 요청 쿼리 파라미터 값 유효성 검증 실패
     - `500 InternalServerError`: 서버 오류
 
-### 7. 채용공고 상세 페이지 가져오기
+### 7. 채용공고 상세 페이지 조회
 
-단일 채용공고를 조회해 응답합니다. 해당 채용공고를 올린 회사의 채용공고가 더 있다면 채용공고의 id들을 함께 응답합니다.
+단일 채용공고를 조회해 응답합니다. 해당 채용공고를 올린 회사의 채용공고id들을 함께 응답합니다.
 
 - 엔드포인트
   ```
@@ -529,7 +530,7 @@ model Application {
     - `403 Forbidden`: id에 해당하는 채용공고 레코드가 없는 경우
     - `500 InternalServerError`: 서버 오류
 
-### 8. 지원하기
+### 8. 채용공고 지원
 
 사용자가 채용공고에 지원합니다. 사용자가 채용공고에 지원하면 지원내역을 생성해 응답합니다. 사용자는 하나의 채용공고에 한 번만 지원할 수 있습니다.
 
@@ -909,7 +910,7 @@ model Application {
     - 성공 시 { deleted: true } 리턴
     - 실패 시 { deleted: false, message: '삭제 실패' } 리턴
 
-##### 채용공고 목록 가져오기
+##### 채용공고 목록 조회(페이지네이션)
 
 - DTO 선언 및 유효성 검증(`class-valiator`, `class-transformer`)
 
@@ -976,10 +977,13 @@ model Application {
 
   ```ts
   export class PageDto<T> {
-    constructor(
-      private readonly data: T[], //
-      private readonly meta: PageMetaDto,
-    ) {}
+    private readonly data: T[];
+    private readonly meta: PageMetaDto;
+
+    constructor(data: T[], meta: PageMetaDto) {
+      this.data = data;
+      this.meta = meta;
+    }
   }
   ```
 
@@ -1047,7 +1051,7 @@ model Application {
 
   - relation 쿼리 수행 시 리턴하는 데이터 타입 선언
 
-##### 채용공고 검색하기(회사명, 채용포지션)
+##### 채용공고 검색(회사명, 채용포지션)
 
 - DTO 선언 및 유효성 검증
 
@@ -1072,7 +1076,7 @@ model Application {
   @Get()
   searchJobPostings(
     @Query() dto: SearchJobPostingsDto, //
-  ): Promise<JobPosting[]> {
+  ): Promise<JobPostingWithCompany[]> {
     return this.jobPostingService.searchJobPostings(dto);
   }
   ```
@@ -1148,7 +1152,7 @@ model Application {
   - include를 통해 relation 쿼리를 수행해 회사 정보까지 조회
   - 생성일 기준 오름차순 정렬
 
-##### 채용공고 상세 페이지 가져오기
+##### 채용공고 상세 페이지 조회
 
 - id 패스 파라미터 유효성 검증(`IdValidationPipe`)
 
@@ -1230,7 +1234,7 @@ model Application {
 
   - relation 쿼리 수행 시 리턴하는 데이터 타입 선언
 
-##### 채용공고 지원하기
+##### 채용공고 지원
 
 - DTO 선언 및 유효성 검증
 
