@@ -7,6 +7,7 @@ import {
   PageMetaDto,
   SearchJobPostingsDto,
   UpdateJobPostingDto,
+  DeleteJobPostingDto,
 } from './dto';
 import { JobPosting } from '@prisma/client';
 import {
@@ -16,7 +17,6 @@ import {
   includeCompanyAndSelectJobPostingsId,
 } from './output-types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
 
 @Injectable()
 export class JobPostingService {

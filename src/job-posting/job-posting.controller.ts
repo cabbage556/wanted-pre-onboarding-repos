@@ -15,6 +15,7 @@ import {
   PageDto,
   SearchJobPostingsDto,
   UpdateJobPostingDto,
+  DeleteJobPostingDto,
 } from './dto';
 import { JobPosting } from '@prisma/client';
 import { IdValidationPipe } from '../pipes';
@@ -38,8 +39,7 @@ import {
   JobPostingWithCompanyAndJobPostingsIdEntity,
   JobPostingWithCompanyEntity,
 } from './entities';
-import { DeleteJobPostingDto } from './dto/delete-job-posting.dto';
-import { ApiPaginatedResponse } from 'src/swagger/api-response/api-paginated-response';
+import { ApiPaginatedResponse } from '../swagger/api-response/api-paginated-response';
 
 @ApiTags('posts')
 @ApiExtraModels(PageDto)
