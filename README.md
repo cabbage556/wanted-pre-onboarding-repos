@@ -4,28 +4,28 @@
 
 ## 실행하기
 
-데이터베이스(도커 컴포즈)
+1. 데이터베이스(도커 컴포즈)
 
-- 도커 컴포즈를 사용하므로 도커 설치가 필요합니다.(사용한 도커 버전: v20.10.22)
-- `docker-compose build`
-- `docker-compose up`
-- 5432번 포트 사용
+   - 도커 컴포즈를 사용하므로 도커 설치가 필요합니다.(사용한 도커 버전: v20.10.22)
+   - `docker-compose build`
+   - `docker-compose up`
+   - 5432번 포트 사용
 
-서버(로컬)
+2. 서버(로컬)
 
-- `npm install`
-- `npm run start`
-- 3000번 포트 사용
+   - `npm install`
+   - `npm run start`
+   - 3000번 포트 사용
 
-Prisma
+3. Prisma
 
-- 마이그레이션 실행 및 Prisma Client 생성: `npx prisma migrate dev`
-- 데이터베이스 시드 스크립트 실행: `npx prisma db seed`
-  - 회사 더미 데이터와 사용자 더미 데이터 생성
-- Prisma Studio 실행: `npx prisma studio`
-  - 데이터베이스 데이터를 확인할 수 있습니다.
-  - 데이터베이스 시드 스크립트를 사용하지 않고 prisma studio를 사용해 직접 더미 데이터를 생성할 수 있습니다.
-  - 5555번 포트 사용
+   - 마이그레이션 실행 및 Prisma Client 생성: `npx prisma migrate dev`
+   - 데이터베이스 시드 스크립트 실행: `npx prisma db seed`
+     - 시드 스크립트 실행 시 회사 더미 데이터와 사용자 더미 데이터를 각각 2개씩 생성할 수 있습니다.
+   - Prisma Studio 실행: `npx prisma studio`
+     - `prisma studio`에서 데이터베이스 데이터를 확인할 수 있습니다.
+     - 데이터베이스 시드 스크립트를 사용하지 않고 prisma studio에서 직접 더미 데이터를 생성할 수 있습니다.
+     - 5555번 포트 사용
 
 ## 테스트하기
 
@@ -115,7 +115,9 @@ model Application {
 
 ## API 명세서
 
-**데이터베이스에 회사 및 사용자 더미 데이터를 생성하기 위해 `npx prisma db seed` 스크립트를 사용할 수 있습니다. 회사, 사용자 데이터를 직접 생성하려면 `npx prisma studio` 스크립트를 통해 prisma studio를 사용할 수 있습니다.**
+**데이터베이스에 회사 및 사용자 더미 데이터를 생성하기 위해 `npx prisma db seed` 스크립트를 사용할 수 있습니다. `npx prisma db seed` 스크립트를 사용하면 회사, 사용자 더미 데이터가 각각 2개씩 생성됩니다. 회사, 사용자 더미 데이터를 직접 생성하려면 `npx prisma studio` 스크립트를 통해 prisma studio를 사용할 수 있습니다.**
+
+**swagger로 API 명세서를 확인할 수 있습니다.(http://localhost:3000/api#)**
 
 사전과제의 요구 사항에 따라 총 7개의 API를 구현하였다.
 
@@ -132,7 +134,7 @@ model Application {
 
 ### 1. 채용공고 등록
 
-채용공고 테이블에 채용공고 레코드를 생성하고 생성한 채용공고 레코드를 리턴합니다.
+채용공고를 생성하고 생성한 채용공고 정보를 응답합니다.
 
 - 엔드포인트
 
@@ -152,11 +154,11 @@ model Application {
   }
   ```
 
-  - `companyId(필수)`: 정수값, 1 이상
-  - `position(필수)`: 문자열, 100자 이하
-  - `content(필수)`: 문자열
-  - `stack(선택)`: 문자열, 100자 이하, 전달하지 않으면 null 저장
-  - `rewards(선택)`: 정수값, 0 이상, 전달하지 않으면 0 저장
+  - `companyId(필수)`: 회사id(정수값, 1 이상)
+  - `position(필수)`: 채용포지션(문자열, 100자 이하)
+  - `content(필수)`: 채용공고 내용(문자열)
+  - `stack(선택)`: 기술스택(문자열, 100자 이하, 전달하지 않으면 null 저장)
+  - `rewards(선택)`: 채용보상금(정수값, 0 이상, 전달하지 않으면 0 저장)
 
 - 응답
 
@@ -164,6 +166,7 @@ model Application {
 
     ```json
     201 Created
+
     {
       "id": 1,
       "createdAt": "2023-10-09T09:23:50.185Z",
@@ -178,11 +181,12 @@ model Application {
 
   - 실패
     - `400 BadRequest`: 요청 바디 값 유효성 검증 실패
+    - `403 Forbidden`: companyId에 해당하는 회사가 존재하지 않는 경우
     - `500 InternalServerError`: 서버 오류
 
 ### 2. 채용공고 수정
 
-채용공고 레코드를 업데이트하고 업데이트한 채용공고 레코드를 리턴합니다.
+채용공고를 수정하고 수정한 채용공고 정보를 응답합니다.
 
 - 엔드포인트
 
@@ -190,7 +194,7 @@ model Application {
   PATCH /posts/{id}
   ```
 
-  - `id(필수)`: 정수값
+  - `id(필수)`: 채용공고id(정수값, 1 이상)
 
 - 요청 예시
 
@@ -207,15 +211,18 @@ model Application {
   }
   ```
 
-  - `position(선택)`: 문자열, 100자 이하
-  - `content(선택)`: 문자열
-  - `stack(선택)`: 문자열, 100자 이하
-  - `rewards(선택)`: 정수값, 0 이상
+  - `position(선택)`: 채용포지션(문자열, 100자 이하)
+  - `content(선택)`: 채용공고 내용(문자열)
+  - `stack(선택)`: 기술스택(문자열, 100자 이하)
+  - `rewards(선택)`: 채용보상금(정수값, 0 이상)
 
 - 응답
+
   - 성공 예시
+
     ```json
     200 OK
+
     {
       "id": 1,
       "createdAt": "2023-10-09T09:23:50.185Z",
@@ -227,6 +234,7 @@ model Application {
       "companyId": 1
     }
     ```
+
   - 실패
     - `400 Bad Request`: 요청 패스 파라미터 값 유효성 검사 실패 | 요청 바디 값 유효성 검사 실패
     - `403 Forbidden`: id에 해당하는 채용공고 레코드가 없는 경우
@@ -234,7 +242,7 @@ model Application {
 
 ### 3. 채용공고 삭제
 
-채용공고 레코드를 제거하고 객체 형태로 삭제 성공 여부를 리턴합니다. 채용공고 레코드 삭제 시 채용공고에 지원한 지역내역이 모두 삭제됩니다.
+채용공고를 삭제하고 삭제 성공 여부를 응답합니다. 채용공고 삭제 시 채용공고에 지원한 지역내역도 모두 삭제됩니다.
 
 - 엔드포인트
 
@@ -242,28 +250,35 @@ model Application {
   DELETE /posts/{id}
   ```
 
-  - `id(필수)`: 정수값
+  - `id(필수)`: 채용공고id(정수값, 1 이상)
 
 - 요청 예시
   ```
   DELETE /posts/1
   ```
 - 응답
+
   - 성공 예시
+
     ```json
     200 OK
+
     {
       "deleted": true
     }
     ```
+
   - 실패1
+
     ```json
     200 OK
+
     {
       "deleted": false,
       "message": "삭제 실패"
     }
     ```
+
   - 실패2
     - `400 Bad Request`: 요청 패스 파라미터 값 유효성 검사 실패 | 요청 바디 값 유효성 검사 실패
     - `403 Forbidden`: id에 해당하는 채용공고 레코드가 없는 경우
@@ -271,9 +286,7 @@ model Application {
 
 ### 4. 채용공고 목록 가져오기
 
-채용공고 레코드들을 조회하고, 채용공고 레코드 배열과 페이지네이션 메타 데이터를 리턴합니다.
-
-페이지네이션을 적용하여 기본 페이지는 1로, 기본 조회 갯수는 10을 사용합니다.
+채용공고 목록을 조회하고, 채용공고 목록(data)과 페이지네이션 메타데이터(meta)를 응답합니다.
 
 - 엔드포인트
 
@@ -281,8 +294,8 @@ model Application {
   GET /posts/list?page=:page&take=:take
   ```
 
-  - `page(선택)`: 정수값, 전달하지 않으면 기본값 1 사용
-  - `take(선택)`: 정수값, 전달하지 않으면 기본값 10 사용
+  - `page(선택)`: 페이지(정수값, 전달하지 않으면 기본값 1 사용)
+  - `take(선택)`: 한 페이지에 보여줄 채용공고 갯수(정수값, 전달하지 않으면 기본값 10 사용)
 
 - 요청 예시
   ```
@@ -294,6 +307,7 @@ model Application {
 
     ```json
     200 OK
+
     {
       "data": [
         {
@@ -348,22 +362,25 @@ model Application {
 
 ### 5. 채용공고 검색하기(회사 이름)
 
-회사 이름을 검색해 해당하는 회사의 채용공고 레코드를 배열로 리턴합니다.
+회사 이름을 검색해 해당하는 회사의 채용공고 목록을 응답합니다. 회사 이름을 검색하려면 field 쿼리 파라미터에 company를 전달합니다.
 
 - 엔드포인트
   ```
   GET /posts?search=:search&field=company
   ```
-  - `search(필수)`: 문자열, 1글자 이상 100글자 이하
-  - `field(필수)`: 문자열, company 또는 position
+  - `search(필수)`: 검색 키워드(문자열, 1글자 이상 100글자 이하)
+  - `field(필수)`: 검색 필드(문자열, company)
 - 요청 예시
   ```
   GET /posts?search=원티드&field=company
   ```
 - 응답
+
   - 성공 예시
+
     ```json
     200 OK
+
     [
       {
         "id": 1,
@@ -399,28 +416,32 @@ model Application {
       }
     ]
     ```
+
   - 실패
     - `400 Bad Request`: 요청 쿼리 파라미터 값 유효성 검증 실패
     - `500 InternalServerError`: 서버 오류
 
-### 6. 채용공고 검색하기(채용 포지션)
+### 6. 채용공고 검색하기(채용포지션)
 
-채용 포지션을 검색해 해당하는 채용공고 레코드를 배열로 리턴합니다.
+채용포지션을 검색해 해당하는 채용포지션의 채용공고 목록을 응답합니다. 채용포지션을 검색하려면 field 쿼리 파라미터에 position을 전달합니다.
 
 - 엔드포인트
   ```
   GET /posts?search=:search&field=position
   ```
-  - `search(필수)`: 문자열, 1글자 이상 100글자 이하
-  - `field(필수)`: 문자열, company 또는 position
+  - `search(필수)`: 검색 키워드(문자열, 1글자 이상 100글자 이하)
+  - `field(필수)`: 검색 필드(문자열, position)
 - 요청 예시
   ```
   GET /posts?search=백엔드&field=position
   ```
 - 응답
+
   - 성공 예시
+
     ```json
     200 OK
+
     [
       {
         "id": 1,
@@ -456,19 +477,20 @@ model Application {
       }
     ]
     ```
+
   - 실패
     - `400 Bad Request`: 요청 쿼리 파라미터 값 유효성 검증 실패
     - `500 InternalServerError`: 서버 오류
 
 ### 7. 채용공고 상세 페이지 가져오기
 
-채용공고 레코드를 조회해 리턴합니다. 채용공고를 올린 회사의 채용공고가 더 있다면 채용공고의 id들을 함께 리턴합니다.
+단일 채용공고를 조회해 응답합니다. 해당 채용공고를 올린 회사의 채용공고가 더 있다면 채용공고의 id들을 함께 응답합니다.
 
 - 엔드포인트
   ```
   GET /posts/{id}
   ```
-  - `id(필수)`: 정수값
+  - `id(필수)`: 채용공고id(정수값, 1 이상)
 - 요청 예시
   ```
   GET /posts/1
@@ -509,7 +531,7 @@ model Application {
 
 ### 8. 지원하기
 
-지원내역 레코드를 생성해 리턴합니다.
+사용자가 채용공고에 지원합니다. 사용자가 채용공고에 지원하면 지원내역을 생성해 응답합니다. 사용자는 하나의 채용공고에 한 번만 지원할 수 있습니다.
 
 - 엔드포인트
 
@@ -526,8 +548,8 @@ model Application {
   }
   ```
 
-  - `userId(필수)`: 정수값, 1 이상
-  - `jobPostingId(필수)`: 정수값, 1 이상
+  - `userId(필수)`: 사용자id(정수값, 1 이상)
+  - `jobPostingId(필수)`: 채용공고id(정수값, 1 이상)
 
 - 응답
 
@@ -535,6 +557,7 @@ model Application {
 
     ```json
     201 Created
+
     {
       "id": 1,
       "createdAt": "2023-10-09T10:18:21.595Z",
@@ -545,7 +568,7 @@ model Application {
 
   - 실패
     - `400 Bad Request`: 요청 바디 값 유효성 검증 실패
-    - `403 Forbidden`: 사용자가 채용공고에 이미 한 번 지원한 경우 | userId 또는 jobPostingId에 해당하는 레코드가 없는 경우(외래키 제약조건 실패)
+    - `403 Forbidden`: 사용자가 채용공고에 이미 한 번 지원한 경우 | userId에 해당하는 사용자가 없거나 jobPostingId에 해당하는 채용공고가 없는 경우
     - `500 InternalServerError`: 서버 오류
 
 ## 요구사항 분석 및 구현
@@ -670,8 +693,6 @@ model Application {
    - HTTP 메서드
      - 생성: POST
 
-회사, 사용자의 경우 API 없이 `Prisma Studio`를 사용해 직접 데이터베이스에 생성하였다.
-
 #### 3. 코드 작성
 
 ##### 채용공고 등록
@@ -728,16 +749,24 @@ model Application {
   async createJobPosting(
     dto: CreateJobPostingDto, //
   ): Promise<JobPosting> {
-    const jobPosting = await this.prismaService.jobPosting.create({
-      data: {
-        ...dto,
-      },
-    });
-    return jobPosting;
+    try {
+      const jobPosting = await this.prismaService.jobPosting.create({
+        data: {
+          ...dto,
+        },
+      });
+      return jobPosting;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2003')
+          throw new ForbiddenException('리소스 접근 거부');
+      }
+    }
   }
   ```
 
   - JobPosting 테이블에 레코드 생성 후 컨트롤러에 리턴
+  - 외래키 제약조건이 실패하는 경우(companyId에 해당하는 회사가 없음) ForbiddenException 예외 응답
 
 ##### 채용공고 수정
 
@@ -845,7 +874,7 @@ model Application {
   @Delete(':id')
   deleteJobPosting(
     @Param('id', IdValidationPipe) id: number, //
-  ): Promise<{ deleted: boolean; message?: string }> {
+  ): Promise<DeleteJobPostingDto> {
     return this.jobPostingService.deleteJobPosting(id);
   }
   ```
@@ -858,7 +887,7 @@ model Application {
   ```ts
   async deleteJobPosting(
     id: number, //
-  ): Promise<{ deleted: boolean; message?: string }> {
+  ): Promise<DeleteJobPostingDto> {
     const jobPosting = await this.getJobPostingById(id);
     if (!jobPosting) throw new ForbiddenException('리소스 접근 거부');
 
